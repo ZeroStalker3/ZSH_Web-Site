@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Связь с нами — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    header {
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+      margin: 0 0 15px 0;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      padding: 7rem 2rem 3rem;
+      max-width: 1100px;
+      margin: auto;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(127, 90, 240, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      color: #7f5af0;
+      font-size: 2.7rem;
+      margin-bottom: 0.5rem;
+      animation: glitch 1.5s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 1px 1px #ff00c8, -1px -1px #00fff7; }
+      20% { text-shadow: -2px 1px #ff00c8, 2px -1px #00fff7; }
+      40% { text-shadow: 1px -2px #ff00c8, -1px 2px #00fff7; }
+      60% { text-shadow: -1px 2px #ff00c8, 2px -2px #00fff7; }
+      80% { text-shadow: 2px 1px #ff00c8, -2px -1px #00fff7; }
+      100% { text-shadow: 0 0 #ff00c8, 0 0 #00fff7; }
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #ccc;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .contact-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .contact-form,
+    .contact-info {
+      background: #1a1a1a;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(127, 90, 240, 0.2);
+    }
+
+    label {
+      font-weight: bold;
+      color: #7f5af0;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 6px;
+      border: none;
+      background: #2a2a2a;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      background: #7f5af0;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: black;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #a78af0;
+    }
+
+    .contact-info h2 {
+      color: #00fff7;
+      margin-top: 0;
+    }
+
+    .contact-info ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .contact-info li {
+      margin-bottom: 0.8rem;
+    }
+
+    .contact-info a {
+      color: #7f5af0;
+      text-decoration: none;
+    }
+
+    .map {
+      margin-top: 1.5rem;
+      background: #333;
+      color: #aaa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <header>
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Связь с нами</h1>
+    <p class="subtitle">Если у вас возникли вопросы, предложения или нужна помощь — напишите нам</p>
+
+    <div class="contact-container">
+      <form class="contact-form" id="contactForm">
+        <label for="name">Имя</label>
+        <input type="text" id="name" name="name" required placeholder="Ваше имя" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="your@email.com" />
+
+        <label for="subject">Тема</label>
+        <select id="subject" name="subject">
+          <option>Общие вопросы</option>
+          <option>Техническая поддержка</option>
+          <option>Сотрудничество</option>
+          <option>Жалоба</option>
+        </select>
+
+        <label for="message">Сообщение</label>
+        <textarea id="message" name="message" rows="5" required placeholder="Введите сообщение..."></textarea>
+
+        <button type="submit">Отправить</button>
+      </form>
+
+      <div class="contact-info">
+        <h2>Альтернативные способы</h2>
+        <ul>
+          <li>📧 Email: <a href="mailto:zerospacehack@proton.me">zerospacehack@proton.me</a></li>
+          <li>💬 Telegram: <a href="https://t.me/zsh_support" target="_blank">@zsh_support</a></li>
+          <li>🎮 Discord: <a href="https://discord.gg/zsh" target="_blank">discord.gg/zsh</a></li>
+        </ul>
+
+        <h2>Часы работы поддержки</h2>
+        <ul>
+          <li>Пн–Пт: 10:00 – 18:00 (МСК)</li>
+          <li>Сб: 12:00 – 16:00 (МСК)</li>
+          <li>Вс: выходной</li>
+        </ul>
+
+        <div class="map">[ Здесь будет карта (Google / Яндекс) ]</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // WebGL фон
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.z = 5;
+
+    const geometry = new THREE.TorusGeometry(2, 0.5, 16, 100);
+    const material = new THREE.MeshStandardMaterial({ color: 0x7f5af0 });
+    const torus = new THREE.Mesh(geometry, material);
+    scene.add(torus);
+
+    const light = new THREE.PointLight(0xffffff);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      torus.rotation.x += 0.01;
+      torus.rotation.y += 0.005;
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Отправка формы
+    document.getElementById('contactForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (!name || !email || !message) {
+        alert("Пожалуйста, заполните все обязательные поля.");
+        return;
+      }
+
+      alert(`✅ Спасибо, ${name}! Ваше сообщение отправлено.\nМы ответим на ${email} в ближайшее время.`);
+      document.getElementById('contactForm').reset();
+    });
+  </script>
+</body>
+</html>

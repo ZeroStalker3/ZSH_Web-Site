@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐇 Пасхалка — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #000;
+      overflow: hidden;
+      font-family: 'Orbitron', sans-serif;
+      color: lime;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 3rem;
+      text-align: center;
+      animation: glitch 2s infinite;
+      z-index: 10;
+      user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    p {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      color: #0ff;
+      animation: flicker 2s infinite;
+      z-index: 10;
+      user-select: none;
+      max-width: 90vw;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 0 red, -2px 0 blue; }
+      20% { text-shadow: -2px -2px red, 2px 2px blue; }
+      40% { text-shadow: 2px 2px red, -2px -2px blue; }
+      60% { text-shadow: -2px 2px red, 2px -2px blue; }
+      80% { text-shadow: 2px -2px red, -2px 2px blue; }
+      100% { text-shadow: 2px 0 red, -2px 0 blue; }
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+      70% { opacity: 0.1; }
+    }
+
+    .matrix {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: black;
+      overflow: hidden;
+      z-index: 1;
+      user-select: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    button {
+      margin-top: 3rem;
+      background: transparent;
+      border: 2px solid lime;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      color: lime;
+      text-transform: uppercase;
+      cursor: pointer;
+      animation: glitch 1.5s infinite;
+      z-index: 10;
+      user-select: none;
+      border-radius: 6px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    button:hover {
+      background: lime;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <div class="matrix">
+    <canvas id="matrix"></canvas>
+  </div>
+
+  <h1>🐇 Добро пожаловать в кроличью нору</h1>
+  <p>Это скрытая зона ZSH. Ты нашёл глитч.</p>
+  <button onclick="location.href='index.html'">Вернуться в реальность</button>
+
+  <script>
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+
+    const letters = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const fontSize = 14;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops = new Array(columns).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#0F0";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters.charAt(Math.floor(Math.random() * letters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    setInterval(draw, 33);
+
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      columns = Math.floor(canvas.width / fontSize);
+      drops = new Array(columns).fill(1);
+    });
+  </script>
+</body>
+</html>

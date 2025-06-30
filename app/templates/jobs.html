@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вакансии — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    main {
+      padding: 6rem 2rem 2rem;
+      max-width: 1000px;
+      margin: auto;
+      flex-grow: 1;
+    }
+
+    h1, h2, h3 {
+      color: #7f5af0;
+      text-align: center;
+    }
+
+    .job-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .job-item {
+      background: #1a1a1a;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(127, 90, 240, 0.3);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .job-item:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 0 25px rgba(127, 90, 240, 0.6);
+    }
+
+    .job-title {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+      color: #7f5af0;
+    }
+
+    .job-desc, .job-conditions {
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    form {
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(127, 90, 240, 0.3);
+      max-width: 700px;
+      margin: 40px auto;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #7f5af0;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #111;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #7f5af0;
+      background: transparent;
+      color: #7f5af0;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #7f5af0;
+      color: black;
+    }
+
+    .success-message {
+      text-align: center;
+      color: #00ff99;
+      font-weight: bold;
+      display: none;
+    }
+
+    footer {
+      background: #111;
+      color: #666;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Вакансии / Карьера</h1>
+    <section>
+      <h2>Открытые вакансии</h2>
+      <ul class="job-list">
+        <li class="job-item" tabindex="0">
+          <div class="job-title">Unity-разработчик</div>
+          <div class="job-desc">Разработка и поддержка игровых проектов на Unity. Требуется опыт C# от 2 лет.</div>
+          <div class="job-conditions">Удалённая работа, гибкий график, зарплата обсуждается.</div>
+        </li>
+        <li class="job-item" tabindex="0">
+          <div class="job-title">3D-художник</div>
+          <div class="job-desc">Создание 3D-моделей и анимаций для игровых проектов.</div>
+          <div class="job-conditions">Офис в Москве, полный рабочий день, соцпакет.</div>
+        </li>
+        <li class="job-item" tabindex="0">
+          <div class="job-title">Менеджер проектов</div>
+          <div class="job-desc">Координация команд, планирование и контроль сроков.</div>
+          <div class="job-conditions">Частичная удалёнка, обсуждаемая зарплата.</div>
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Отправить резюме</h2>
+      <form id="resumeForm">
+        <label for="name">Имя и Фамилия *</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="email">Электронная почта *</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="position">Желаемая позиция</label>
+        <input type="text" id="position" name="position" />
+
+        <label for="message">Сопроводительное письмо</label>
+        <textarea id="message" name="message"></textarea>
+
+        <button type="submit">Отправить</button>
+        <div class="success-message" id="successMessage">Спасибо! Ваше резюме отправлено.</div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 Zero Space Hack — Все права защищены.
+  </footer>
+
+  <script>
+    const form = document.getElementById("resumeForm");
+    const successMessage = document.getElementById("successMessage");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      successMessage.style.display = "block";
+      form.reset();
+
+      setTimeout(() => {
+        successMessage.style.display = "none";
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

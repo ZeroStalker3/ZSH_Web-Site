@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Игры — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset & base */
+    html, body {
+      margin: 0; padding: 0;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a3d);
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+      user-select: none;
+      transition: background 10s linear;
+      position: relative;
+      height: 100%;
+    }
+    body.light-theme {
+      background: linear-gradient(135deg, #fff, #ddeeff);
+      color: #222;
+    }
+    body.light-theme header,
+    body.light-theme footer {
+      background: rgba(255,255,255,0.9);
+      color: #444;
+      box-shadow: 0 0 15px #7f5af0aa;
+    }
+    body.light-theme nav a {
+      color: #444;
+    }
+    body.light-theme nav a:hover {
+      color: #7f5af0;
+    }
+    body.light-theme .card {
+      background: #eee;
+      color: #222;
+      box-shadow: 0 0 15px #7f5af0aa;
+      transition: box-shadow 0.3s ease;
+    }
+    body.light-theme .card:hover {
+      box-shadow: 0 0 30px #7f5af0ff;
+    }
+
+    /* Header */
+    header {
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    /* Main */
+    main {
+      margin-top: 90px;
+      padding: 2rem 2rem 4rem;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      color: #7f5af0;
+      margin-bottom: 0;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.5s ease, text-shadow 0.8s ease-in-out;
+      text-shadow: 0 0 8px #7f5af0;
+    }
+    h1:hover {
+      color: #a175f9;
+      animation: pulseGlow 2s infinite alternate;
+      text-shadow:
+        0 0 12px #9c72ff,
+        0 0 24px #9c72ff,
+        0 0 36px #7f5af0,
+        0 0 48px #7f5af0;
+    }
+    @keyframes pulseGlow {
+      0% { text-shadow: 0 0 8px #7f5af0; }
+      100% { text-shadow:
+        0 0 16px #cba2ff,
+        0 0 32px #cba2ff,
+        0 0 48px #a175f9,
+        0 0 64px #a175f9;}
+    }
+
+    /* 3D Canvas Container */
+    #webgl-container {
+      width: 100%;
+      height: 400px;
+      border: 3px solid #7f5af0;
+      border-radius: 20px;
+      box-shadow: 0 0 25px #7f5af0bb;
+      background: #121224;
+      cursor: grab;
+      user-select: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    #webgl-container:active {
+      cursor: grabbing;
+    }
+
+    /* Neon flicker flash effect on background */
+    @keyframes neonFlash {
+      0%, 100% { box-shadow: 0 0 25px #7f5af0bb; border-color: #7f5af0; }
+      50% { box-shadow: 0 0 50px #bb77ffdd; border-color: #bb77ff; }
+    }
+    #webgl-container.flicker {
+      animation: neonFlash 3s infinite ease-in-out;
+    }
+
+    /* Games Grid */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.8rem;
+      user-select: none;
+      position: relative;
+      z-index: 5;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(127, 90, 240, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 0 30px rgba(127, 90, 240, 0.7);
+    }
+
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      filter: brightness(0.85);
+      transition: filter 0.3s ease;
+      border-bottom: 2px solid #7f5af0;
+    }
+    .card:hover img {
+      filter: brightness(1);
+    }
+
+    .card-content {
+      padding: 1rem 1.2rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      color: #7f5af0;
+      margin-bottom: 0.6rem;
+      flex-shrink: 0;
+      user-select: text;
+      text-shadow: 0 0 6px #7f5af0aa;
+      transition: text-shadow 0.4s ease;
+    }
+    .card:hover .card-title {
+      text-shadow:
+        0 0 8px #b399ff,
+        0 0 15px #7f5af0;
+    }
+
+    .card-desc {
+      font-size: 1rem;
+      color: #ccc;
+      line-height: 1.4;
+      flex-grow: 1;
+      user-select: text;
+    }
+
+    /* Обновленный глитч-эффект для кнопок */
+    .btn-glitch {
+      margin-top: 1rem;
+      padding: 0.6rem 1.6rem;
+      border: 2px solid #7f5af0;
+      background: transparent;
+      color: #7f5af0;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      transition: color 0.3s ease;
+      z-index: 0;
+      filter: drop-shadow(0 0 2px #7f5af0);
+      animation: btnGlowPulse 3s ease-in-out infinite;
+    }
+    .btn-glitch:hover {
+      color: #fff;
+      animation: btnGlowPulseFast 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 5px #b399ff);
+    }
+
+    /* Основной текст */
+    .btn-glitch span {
+      position: relative;
+      display: inline-block;
+      z-index: 1;
+      filter: drop-shadow(0 0 1px #7f5af0);
+    }
+
+    /* Глитч псевдоэлементы для RGB split */
+    .btn-glitch::before,
+    .btn-glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      opacity: 0.8;
+      color: #f0f;
+      animation: glitch-anim1 2s infinite linear alternate-reverse;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .btn-glitch::after {
+      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+      color: #0ff;
+      animation: glitch-anim2 2.5s infinite linear alternate;
+      z-index: 3;
+    }
+
+    @keyframes glitch-anim1 {
+      0% {
+        transform: translate(2px, -2px);
+      }
+      50% {
+        transform: translate(-2px, 2px);
+      }
+      100% {
+        transform: translate(2px, -2px);
+      }
+    }
+    @keyframes glitch-anim2 {
+      0% {
+        transform: translate(-2px, 2px);
+      }
+      50% {
+        transform: translate(2px, -2px);
+      }
+      100% {
+        transform: translate(-2px, 2px);
+      }
+    }
+
+    @keyframes btnGlowPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 2px #7f5af0);
+      }
+      50% {
+        filter: drop-shadow(0 0 10px #a175f9);
+      }
+    }
+    @keyframes btnGlowPulseFast {
+      0%, 100% {
+        filter: drop-shadow(0 0 4px #b399ff);
+      }
+      50% {
+        filter: drop-shadow(0 0 15px #d1c4ff);
+      }
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 3rem;
+      background: #111;
+      padding: 1rem;
+      text-align: center;
+      color: #aaa;
+      user-select: none;
+      transition: background 1s ease, color 1s ease;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .card img {
+        height: 120px;
+      }
+      #webgl-container {
+        height: 250px;
+      }
+    }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      background: #7f5af0dd;
+      color: white;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      user-select: none;
+      z-index: 50;
+    }
+
+    /* Модальное окно */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 1000;
+      user-select: text;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal {
+      background: #222;
+      border-radius: 12px;
+      max-width: 520px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 1.6rem 2rem 2rem;
+      box-shadow: 0 0 40px #7f5af0cc;
+      position: relative;
+      color: white;
+      animation: modalFadeIn 0.35s ease forwards;
+      user-select: text;
+    }
+    body.light-theme .modal {
+      background: #fafafa;
+      color: #222;
+      box-shadow: 0 0 40px #a175f9cc;
+    }
+
+    .modal-title {
+      margin-top: 0;
+      font-size: 1.9rem;
+      margin-bottom: 1rem;
+      color: #7f5af0;
+      user-select: text;
+    }
+
+    .modal-image {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      user-select: none;
+      box-shadow: 0 0 15px #7f5af0bb;
+    }
+
+    .modal-description {
+      font-size: 1.1rem;
+      line-height: 1.5;
+      user-select: text;
+      color: #ddd;
+    }
+    body.light-theme .modal-description {
+      color: #444;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 12px; right: 15px;
+      background: transparent;
+      border: none;
+      color: #7f5af0;
+      font-size: 2rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: color 0.3s ease;
+      user-select: none;
+      line-height: 1;
+      padding: 0;
+      z-index: 10;
+    }
+    .modal-close:hover {
+      color: #a175f9;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Анимация звезд */
+    .star {
+      position: fixed;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      pointer-events: none;
+      animation-name: twinkle;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
+      will-change: transform, opacity;
+      z-index: 0;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    /* Ретро режим */
+    body.retro {
+      background: #000;
+      filter: contrast(1.3) saturate(1.5);
+    }
+    body.retro header,
+    body.retro footer {
+      background: #111;
+      color: #0f0;
+      box-shadow: 0 0 15px #0f0;
+      font-family: 'Courier New', monospace;
+    }
+    body.retro nav a {
+      color: #0f0;
+    }
+    body.retro nav a:hover {
+      color: #0ff;
+    }
+    body.retro h1 {
+      color: #0f0;
+      text-shadow: 0 0 8px #0f0, 0 0 12px #0ff;
+      font-family: 'Courier New', monospace;
+    }
+    body.retro .card {
+      background: #111;
+      box-shadow: 0 0 12px #0f0;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #0f0;
+    }
+    body.retro .btn-glitch {
+      border-color: #0f0;
+      color: #0f0;
+      filter: drop-shadow(0 0 6px #0f0);
+      animation-name: btnGlowPulseRetro;
+    }
+    @keyframes btnGlowPulseRetro {
+      0%, 100% {
+        filter: drop-shadow(0 0 6px #0f0);
+      }
+      50% {
+        filter: drop-shadow(0 0 20px #0ff);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong id="page-title" tabindex="0" role="button" aria-label="Нажмите для смены темы">ZSH</strong></div>
+    <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1 id="page-title-h1" tabindex="0" role="button" aria-label="Нажмите для пасхалки">🎮 Наши Игры + 3D WebGL Галерея</h1>
+    <div id="webgl-container" aria-label="3D визуализация моделей"></div>
+
+    <div class="games-grid" aria-live="polite" aria-relevant="additions">
+      <!-- Карточки игр -->
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="0" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2016/11/18/22/23/video-game-1835309_1280.jpg" alt="Echoes of the Past" />
+        <div class="card-content">
+          <h2 class="card-title">Echoes of the Past</h2>
+          <p class="card-desc">Рогалик с процедурной генерацией, тактический и атмосферный, с упором на историю.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Echoes of the Past">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="1" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2017/01/20/00/30/game-1995686_1280.jpg" alt="Neon Drift" />
+        <div class="card-content">
+          <h2 class="card-title">Neon Drift</h2>
+          <p class="card-desc">Киберпанк-гонки в стиле ретро с динамичной музыкой и захватывающим геймплеем.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Neon Drift">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="2" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2015/12/08/00/26/futuristic-1082293_1280.jpg" alt="Starfall Protocol" />
+        <div class="card-content">
+          <h2 class="card-title">Starfall Protocol</h2>
+          <p class="card-desc">Тактическая космическая опера с исследованием галактики и дипломатией.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Starfall Protocol">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="3" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2017/12/09/08/18/dungeon-3005629_1280.jpg" alt="Dungeon Depths" />
+        <div class="card-content">
+          <h2 class="card-title">Dungeon Depths</h2>
+          <p class="card-desc">Глубокий подземный мир с головоломками и монстрами, исследование и выживание.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Dungeon Depths">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="4" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2018/05/01/20/42/synthwave-3360227_1280.jpg" alt="Cyber Synthwave" />
+        <div class="card-content">
+          <h2 class="card-title">Cyber Synthwave</h2>
+          <p class="card-desc">Музыкальный ритм-экшен с неоновым стилем и яркой визуализацией.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Cyber Synthwave">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="5" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2015/01/08/18/27/pixel-art-593437_1280.jpg" alt="Pixel Pirates" />
+        <div class="card-content">
+          <h2 class="card-title">Pixel Pirates</h2>
+          <p class="card-desc">Пиксельный приключенческий симулятор пиратов с морскими боями.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Pixel Pirates">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="6" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2016/01/18/17/27/cyberpunk-1149993_1280.jpg" alt="Ghost Runner" />
+        <div class="card-content">
+          <h2 class="card-title">Ghost Runner</h2>
+          <p class="card-desc">Футуристический паркур с интенсивным геймплеем и динамичной камерой.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Ghost Runner">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="7" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2019/11/05/08/51/sky-4606991_1280.jpg" alt="Skyward Bound" />
+        <div class="card-content">
+          <h2 class="card-title">Skyward Bound</h2>
+          <p class="card-desc">Воздушные приключения с открытым миром и видом на бескрайние небеса.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Skyward Bound">Подробнее</button>
+        </div>
+      </div>
+
+      <div class="card" tabindex="0" role="button" aria-pressed="false" data-index="8" onkeydown="if(event.key==='Enter'||event.key===' ') this.click()">
+        <img src="https://cdn.pixabay.com/photo/2018/04/26/00/19/mecha-3356690_1280.jpg" alt="Mech Arena" />
+        <div class="card-content">
+          <h2 class="card-title">Mech Arena</h2>
+          <p class="card-desc">Боевые мехи в арене с командными сражениями и кастомизацией.</p>
+          <button class="btn-glitch" data-text="Подробнее" aria-label="Подробнее про Mech Arena">Подробнее</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; © 2025 Zero Space Hack — Все права защищены.
+  </footer>
+
+  <!-- Tooltip -->
+  <div id="tooltip" class="tooltip" role="tooltip" aria-hidden="true">Нажми!</div>
+
+  <!-- Модальное окно -->
+  <div id="modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc" tabindex="-1">
+    <div class="modal" role="document">
+      <button class="modal-close" aria-label="Закрыть модальное окно">&times;</button>
+      <h2 id="modal-title" class="modal-title"></h2>
+      <img id="modal-image" class="modal-image" src="" alt="" />
+      <p id="modal-desc" class="modal-description"></p>
+    </div>
+  </div>
+
+  <!-- Секретное модальное окно пасхалки -->
+  <div id="secret-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="secret-title" aria-describedby="secret-desc" tabindex="-1">
+    <div class="modal" role="document">
+      <button class="modal-close" aria-label="Закрыть секретное окно">&times;</button>
+      <h2 id="secret-title" class="modal-title">🎉 Секретная пасхалка!</h2>
+      <p id="secret-desc" class="modal-description">Вы нашли секретный режим! Поздравляем, теперь страница в режиме ретро!</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three@0.152.2';
+
+    // --- 3D сцена ---
+    let scene, camera, renderer;
+    let cube, sphere, torus;
+    let currentModelIndex = 0;
+    const objects = [];
+
+    // Вращение мышью
+    let mouseX = 0, mouseY = 0;
+    let targetRotationX = 0, targetRotationY = 0;
+    let currentRotationX = 0, currentRotationY = 0;
+
+    const container = document.getElementById('webgl-container');
+
+    function init() {
+      scene = new THREE.Scene();
+
+      camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.z = 5;
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setClearColor(0x000000, 0);
+      container.appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0x555555);
+      scene.add(ambientLight);
+
+      const pointLight1 = new THREE.PointLight(0x7f5af0, 1, 100);
+      pointLight1.position.set(5, 5, 5);
+      scene.add(pointLight1);
+
+      const pointLight2 = new THREE.PointLight(0x00ffff, 1, 100);
+      pointLight2.position.set(-5, -5, 5);
+      scene.add(pointLight2);
+
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x7f5af0,
+        emissive: 0x4422ff,
+        roughness: 0.25,
+        metalness: 0.7,
+      });
+
+      cube = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), material);
+      sphere = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 32), material);
+      torus = new THREE.Mesh(new THREE.TorusKnotGeometry(0.6, 0.2, 100, 16), material);
+
+      objects.push(cube, sphere, torus);
+      scene.add(objects[currentModelIndex]);
+    }
+
+    let lastTimestamp = 0;
+    function animate(timestamp = 0) {
+      const delta = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      currentRotationX += (targetRotationX - currentRotationX) * 0.1;
+      currentRotationY += (targetRotationY - currentRotationY) * 0.1;
+
+      const obj = objects[currentModelIndex];
+      obj.rotation.x = currentRotationX;
+      obj.rotation.y = currentRotationY;
+
+      obj.rotation.z += 0.01;
+
+      const time = timestamp / 1000;
+      scene.children.forEach(light => {
+        if(light.isPointLight){
+          light.position.x = 5 * Math.cos(time);
+          light.position.z = 5 * Math.sin(time);
+        }
+      });
+
+      renderer.autoClearColor = false;
+      renderer.setClearColor(0x000000, 0.1);
+      renderer.clear();
+      renderer.render(scene, camera);
+      renderer.setClearColor(0x000000, 0);
+
+      // Рандомные вспышки свечения
+      if(Math.random() < 0.008){
+        container.classList.add('flicker');
+        setTimeout(() => container.classList.remove('flicker'), 400);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    function switchModel() {
+      scene.remove(objects[currentModelIndex]);
+      currentModelIndex = (currentModelIndex + 1) % objects.length;
+      scene.add(objects[currentModelIndex]);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    container.addEventListener('mousemove', (event) => {
+      const rect = container.getBoundingClientRect();
+      mouseX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseY = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+
+      targetRotationY = mouseX * Math.PI * 0.25;
+      targetRotationX = -mouseY * Math.PI * 0.25;
+    });
+
+    container.addEventListener('touchmove', (event) => {
+      if(event.touches.length === 1){
+        const touch = event.touches[0];
+        const rect = container.getBoundingClientRect();
+        mouseX = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+        mouseY = ((touch.clientY - rect.top) / rect.height) * 2 - 1;
+
+        targetRotationY = mouseX * Math.PI * 0.25;
+        targetRotationX = -mouseY * Math.PI * 0.25;
+      }
+    }, { passive: true });
+
+    init();
+    animate();
+    setInterval(switchModel, 20000);
+
+    // --- Модальные окна ---
+
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalImage = document.getElementById('modal-image');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalCloseBtn = modal.querySelector('.modal-close');
+
+    const secretModal = document.getElementById('secret-modal');
+    const secretCloseBtn = secretModal.querySelector('.modal-close');
+
+    // Данные игр для модалки
+    const gamesData = [
+      {
+        title: 'Echoes of the Past',
+        img: 'https://cdn.pixabay.com/photo/2016/11/18/22/23/video-game-1835309_1280.jpg',
+        desc: 'Рогалик с процедурной генерацией, тактический и атмосферный, с упором на историю.'
+      },
+      {
+        title: 'Neon Drift',
+        img: 'https://cdn.pixabay.com/photo/2017/01/20/00/30/game-1995686_1280.jpg',
+        desc: 'Киберпанк-гонки в стиле ретро с динамичной музыкой и захватывающим геймплеем.'
+      },
+      {
+        title: 'Starfall Protocol',
+        img: 'https://cdn.pixabay.com/photo/2015/12/08/00/26/futuristic-1082293_1280.jpg',
+        desc: 'Тактическая космическая опера с исследованием галактики и дипломатией.'
+      },
+      {
+        title: 'Dungeon Depths',
+        img: 'https://cdn.pixabay.com/photo/2017/12/09/08/18/dungeon-3005629_1280.jpg',
+        desc: 'Глубокий подземный мир с головоломками и монстрами, исследование и выживание.'
+      },
+      {
+        title: 'Cyber Synthwave',
+        img: 'https://cdn.pixabay.com/photo/2018/05/01/20/42/synthwave-3360227_1280.jpg',
+        desc: 'Музыкальный ритм-экшен с неоновым стилем и яркой визуализацией.'
+      },
+      {
+        title: 'Pixel Pirates',
+        img: 'https://cdn.pixabay.com/photo/2015/01/08/18/27/pixel-art-593437_1280.jpg',
+        desc: 'Пиксельный приключенческий симулятор пиратов с морскими боями.'
+      },
+      {
+        title: 'Ghost Runner',
+        img: 'https://cdn.pixabay.com/photo/2016/01/18/17/27/cyberpunk-1149993_1280.jpg',
+        desc: 'Футуристический паркур с интенсивным геймплеем и динамичной камерой.'
+      },
+      {
+        title: 'Skyward Bound',
+        img: 'https://cdn.pixabay.com/photo/2019/11/05/08/51/sky-4606991_1280.jpg',
+        desc: 'Воздушные приключения с открытым миром и видом на бескрайние небеса.'
+      },
+      {
+        title: 'Mech Arena',
+        img: 'https://cdn.pixabay.com/photo/2018/04/26/00/19/mecha-3356690_1280.jpg',
+        desc: 'Боевые мехи в арене с командными сражениями и кастомизацией.'
+      }
+    ];
+
+    // Открытие модалки с описанием игры
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const index = +card.dataset.index;
+        const game = gamesData[index];
+        if(!game) return;
+        modalTitle.textContent = game.title;
+        modalImage.src = game.img;
+        modalImage.alt = game.title;
+        modalDesc.textContent = game.desc;
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        modal.focus();
+      });
+    });
+
+    // Закрытие модалки
+    modalCloseBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+    });
+    secretCloseBtn.addEventListener('click', () => {
+      secretModal.classList.remove('active');
+      secretModal.setAttribute('aria-hidden', 'true');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    });
+    secretModal.addEventListener('click', (e) => {
+      if(e.target === secretModal) {
+        secretModal.classList.remove('active');
+        secretModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+
+    // --- Пасхалка: тройной клик по заголовку ---
+
+    const secretTrigger = document.getElementById('page-title-h1');
+    let clickCount = 0;
+    let clickTimeout = null;
+
+    secretTrigger.addEventListener('click', () => {
+      clickCount++;
+      if(clickTimeout) clearTimeout(clickTimeout);
+      clickTimeout = setTimeout(() => {
+        clickCount = 0;
+      }, 1000);
+      if(clickCount === 3){
+        toggleRetroMode();
+        secretModal.classList.add('active');
+        secretModal.setAttribute('aria-hidden', 'false');
+        secretModal.focus();
+        clickCount = 0;
+      }
+    });
+
+    // --- Ретро режим пасхалка ---
+
+    function toggleRetroMode() {
+      document.body.classList.toggle('retro');
+    }
+
+    // --- Плавный градиентный фон ---
+    const gradients = [
+      ['#0a0a0a', '#1a1a3d'],
+      ['#1a1a3d', '#4a2f8f'],
+      ['#4a2f8f', '#7f5af0'],
+      ['#7f5af0', '#0a0a0a']
+    ];
+    let gradIndex = 0;
+    let gradStep = 0;
+    const gradStepsCount = 300;
+
+    function updateBackgroundGradient() {
+      gradStep++;
+      if(gradStep >= gradStepsCount){
+        gradStep = 0;
+        gradIndex = (gradIndex + 1) % gradients.length;
+      }
+      const [c1, c2] = gradients[gradIndex];
+      const [c3, c4] = gradients[(gradIndex + 1) % gradients.length];
+
+      const interp = gradStep / gradStepsCount;
+
+      const color1 = interpolateColor(c1, c3, interp);
+      const color2 = interpolateColor(c2, c4, interp);
+
+      document.body.style.background = `linear-gradient(135deg, ${color1}, ${color2})`;
+    }
+
+    // Интерполяция цвета (HEX)
+    function interpolateColor(color1, color2, factor) {
+      const c1 = hexToRgb(color1);
+      const c2 = hexToRgb(color2);
+      const r = Math.round(c1.r + (c2.r - c1.r) * factor);
+      const g = Math.round(c1.g + (c2.g - c1.g) * factor);
+      const b = Math.round(c1.b + (c2.b - c1.b) * factor);
+      return `rgb(${r},${g},${b})`;
+    }
+    function hexToRgb(hex) {
+      hex = hex.replace('#','');
+      if(hex.length === 3){
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      const bigint = parseInt(hex, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+    setInterval(updateBackgroundGradient, 50);
+
+    // --- Звезды в углах ---
+    function createStar(x, y, size, delay) {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      star.style.width = star.style.height = `${size}px`;
+      star.style.left = x;
+      star.style.top = y;
+      star.style.animationDuration = `${3 + delay}s`;
+      star.style.animationDelay = `${delay}s`;
+      document.body.appendChild(star);
+    }
+    createStar('10px', '10px', 4, 0);
+    createStar('calc(100% - 20px)', '10px', 3, 1);
+    createStar('10px', 'calc(100% - 20px)', 5, 2);
+    createStar('calc(100% - 15px)', 'calc(100% - 25px)', 3, 1.5);
+
+    // --- Звук клика (для кнопок) ---
+    const clickSound = new Audio('https://actions.google.com/sounds/v1/interface/click.ogg');
+    clickSound.volume = 0.12;
+
+    document.querySelectorAll('.btn-glitch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        clickSound.currentTime = 0;
+        clickSound.play();
+      });
+    });
+
+    // --- След мыши (particle trail) ---
+    const trailContainer = document.createElement('div');
+    trailContainer.style.position = 'fixed';
+    trailContainer.style.top = 0;
+    trailContainer.style.left = 0;
+    trailContainer.style.width = '100%';
+    trailContainer.style.height = '100%';
+    trailContainer.style.pointerEvents = 'none';
+    trailContainer.style.zIndex = '10';
+    document.body.appendChild(trailContainer);
+
+    function createTrailParticle(x, y) {
+      const p = document.createElement('div');
+      p.style.position = 'absolute';
+      p.style.left = `${x}px`;
+      p.style.top = `${y}px`;
+      p.style.width = '8px';
+      p.style.height = '8px';
+      p.style.borderRadius = '50%';
+      p.style.background = '#7f5af0';
+      p.style.opacity = '0.6';
+      p.style.pointerEvents = 'none';
+      p.style.filter = 'drop-shadow(0 0 5px #7f5af0)';
+      p.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+      trailContainer.appendChild(p);
+
+      requestAnimationFrame(() => {
+        p.style.opacity = '0';
+        p.style.transform = 'scale(2)';
+      });
+      setTimeout(() => trailContainer.removeChild(p), 900);
+    }
+
+    document.body.addEventListener('mousemove', e => {
+      createTrailParticle(e.clientX, e.clientY);
+    });
+
+  </script>
+</body>
+</html>

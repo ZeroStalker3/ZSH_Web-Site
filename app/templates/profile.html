@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Личный кабинет — ZSH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    /* Общие стили страницы и шрифты */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0a0a0a;
+      color: #eee;
+      font-family: 'Orbitron', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      color: #7f5af0;
+      text-align: center;
+      font-weight: 700;
+      user-select: none;
+      margin-bottom: 30px;
+      font-size: 2.8rem;
+      text-shadow: 0 0 15px #7f5af0;
+      animation: glitch 2s infinite;
+    }
+    @keyframes glitch {
+      0%, 100% { text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8; }
+      20% { text-shadow: -2px -2px #7f5af0, 2px 2px #ff00c8; }
+      40% { text-shadow: 2px -2px #7f5af0, -2px 2px #ff00c8; }
+      60% { text-shadow: -2px 2px #7f5af0, 2px -2px #ff00c8; }
+      80% { text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8; }
+    }
+
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 30px;
+    }
+
+    aside {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 0 20px #7f5af0aa;
+      user-select: none;
+    }
+    aside h2 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      color: #7f5af0;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 0 10px #7f5af0;
+    }
+    aside ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    aside li {
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      color: #999;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      user-select: none;
+    }
+    aside li:hover,
+    aside li.active {
+      background: #7f5af0;
+      color: #0a0a0a;
+      font-weight: 700;
+      box-shadow: 0 0 10px #7f5af0bb;
+      outline: none;
+    }
+
+    .content {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 0 25px #7f5af0bb;
+      color: #ddd;
+      user-select: none;
+    }
+
+    .content-section {
+      display: none;
+    }
+    .content-section.active {
+      display: block;
+    }
+
+    .content-section h2 {
+      margin-top: 0;
+      margin-bottom: 25px;
+      color: #7f5af0;
+      font-weight: 700;
+      font-size: 2rem;
+      text-shadow: 0 0 15px #7f5af0;
+      user-select: none;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: #a0d8ff;
+      user-select: none;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      border: none;
+      background: #121212;
+      color: #eee;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease;
+      user-select: text;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid #7f5af0;
+      background: #1a1a1a;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #7f5af0;
+      color: #0a0a0a;
+      padding: 14px 28px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      box-shadow: 0 0 10px #7f5af0bb;
+    }
+    .btn:hover,
+    .btn:focus {
+      background: #a37aff;
+      outline: none;
+      box-shadow: 0 0 20px #a37affdd;
+    }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 25px;
+      border: 3px solid #7f5af0;
+      box-shadow: 0 0 15px #7f5af0aa;
+      user-select: none;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .activity-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid #333;
+      font-size: 1.05rem;
+      color: #bbb;
+      user-select: none;
+    }
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .social-btns a {
+      display: inline-block;
+      margin-right: 14px;
+      padding: 10px 16px;
+      background: #2d2d2d;
+      border-radius: 12px;
+      color: #7f5af0;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 0 10px #7f5af0bb;
+      user-select: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .social-btns a:hover,
+    .social-btns a:focus {
+      background: #7f5af0;
+      color: #0a0a0a;
+      outline: none;
+      box-shadow: 0 0 20px #a37affdd;
+    }
+
+    /* Адаптив */
+    @media (max-width: 900px) {
+      .profile-container {
+        grid-template-columns: 1fr;
+      }
+      aside {
+        text-align: center;
+      }
+      aside ul {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      aside li {
+        margin-bottom: 0;
+        padding: 10px 18px;
+        border-radius: 30px;
+      }
+      .avatar {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>👤 Личный кабинет</h1>
+  <div class="profile-container">
+    <aside>
+      <h2>Меню</h2>
+      <ul id="menu" role="list">
+        <li class="active" data-target="profile" role="button" tabindex="0" aria-selected="true">Профиль</li>
+        <li data-target="activity" role="button" tabindex="0" aria-selected="false">Активность</li>
+        <li data-target="privacy" role="button" tabindex="0" aria-selected="false">Приватность</li>
+        <li data-target="subscriptions" role="button" tabindex="0" aria-selected="false">Подписки</li>
+        <li data-target="password" role="button" tabindex="0" aria-selected="false">Смена пароля</li>
+        <li data-target="socials" role="button" tabindex="0" aria-selected="false">Соцсети</li>
+      </ul>
+    </aside>
+
+    <section class="content" role="region" aria-live="polite" aria-label="Содержание личного кабинета">
+      <div id="profile" class="content-section active" tabindex="0">
+        <img src="https://via.placeholder.com/110" class="avatar" alt="Аватар пользователя" />
+        <div class="form-group">
+          <label for="username">Имя пользователя</label>
+          <input type="text" id="username" value="ZSH_Player01" aria-label="Имя пользователя" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" value="player@zsh.games" aria-label="Email пользователя" />
+        </div>
+        <button class="btn" type="button" aria-label="Сохранить изменения профиля">Сохранить изменения</button>
+      </div>
+
+      <div id="activity" class="content-section" tabindex="0" aria-hidden="true">
+        <h2>История активности</h2>
+        <div class="activity-item">💬 Комментарий в блоге: "Крутая статья!" — 12.06.2025</div>
+        <div class="activity-item">🎮 Игровая запись: Победа в «ZSH: Arena» — 10.06.2025</div>
+        <div class="activity-item">💬 Комментарий в форуме: "Есть баг в 1.2.1" — 08.06.2025</div>
+      </div>
+
+      <div id="privacy" class="content-section" tabindex="0" aria-hidden="true">
+        <h2>Настройки приватности</h2>
+        <div class="form-group">
+          <label><input type="checkbox" checked aria-checked="true" /> Показывать активность друзьям</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" aria-checked="false" /> Разрешить приглашения в кланы</label>
+        </div>
+        <button class="btn" type="button" aria-label="Сохранить настройки приватности">Сохранить</button>
+      </div>
+
+      <div id="subscriptions" class="content-section" tabindex="0" aria-hidden="true">
+        <h2>Подписки</h2>
+        <p>У вас активна подписка <strong>ZSH Premium</strong> до 01.08.2025</p>
+        <button class="btn" type="button" aria-label="Управление подпиской">Управление подпиской</button>
+      </div>
+
+      <div id="password" class="content-section" tabindex="0" aria-hidden="true">
+        <h2>Смена пароля</h2>
+        <div class="form-group">
+          <label for="currentPass">Текущий пароль</label>
+          <input id="currentPass" type="password" aria-label="Текущий пароль" />
+        </div>
+        <div class="form-group">
+          <label for="newPass">Новый пароль</label>
+          <input id="newPass" type="password" aria-label="Новый пароль" />
+        </div>
+        <div class="form-group">
+          <label for="confirmPass">Подтверждение</label>
+          <input id="confirmPass" type="password" aria-label="Подтверждение нового пароля" />
+        </div>
+        <button class="btn" type="button" aria-label="Сменить пароль">Сменить пароль</button>
+      </div>
+
+      <div id="socials" class="content-section" tabindex="0" aria-hidden="true">
+        <h2>Привязка соцсетей</h2>
+        <div class="social-btns">
+          <a href="#" aria-label="Привязать Telegram">🔗 Telegram</a>
+          <a href="#" aria-label="Привязать Discord">🔗 Discord</a>
+          <a href="#" aria-label="Привязать Steam">🔗 Steam</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Навигация между вкладками с управлением aria-selected и aria-hidden
+    const menuItems = document.querySelectorAll("#menu li");
+    const sections = document.querySelectorAll(".content-section");
+
+    menuItems.forEach(item => {
+      item.addEventListener("click", () => activateTab(item));
+      item.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          activateTab(e.target);
+        }
+      });
+    });
+
+    function activateTab(item) {
+      menuItems.forEach(i => {
+        i.classList.remove("active");
+        i.setAttribute("aria-selected", "false");
+      });
+      sections.forEach(s => {
+        s.classList.remove("active");
+        s.setAttribute("aria-hidden", "true");
+        s.tabIndex = -1;
+      });
+
+      item.classList.add("active");
+      item.setAttribute("aria-selected", "true");
+      const target = item.dataset.target;
+      const section = document.getElementById(target);
+      section.classList.add("active");
+      section.setAttribute("aria-hidden", "false");
+      section.tabIndex = 0;
+      section.focus();
+    }
+  </script>
+</body>
+</html>

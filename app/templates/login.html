@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вход — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #0a0a0a;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+      color: white;
+    }
+
+    header {
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+      margin: 0 0 15px 0;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      background: rgba(34, 34, 34, 0.85);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #7f5af0;
+      width: 320px;
+      margin: 10vh auto 0;
+      text-align: center;
+    }
+
+    h1 {
+      color: #7f5af0;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      animation: glitch 1.5s infinite;
+      user-select: none;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 1px 1px #ff00c8, -1px -1px #00fff7; }
+      20% { text-shadow: -2px 1px #ff00c8, 2px -1px #00fff7; }
+      40% { text-shadow: 1px -2px #ff00c8, -1px 2px #00fff7; }
+      60% { text-shadow: -1px 2px #ff00c8, 2px -2px #00fff7; }
+      80% { text-shadow: 2px 1px #ff00c8, -2px -1px #00fff7; }
+      100% { text-shadow: 0 0 #ff00c8, 0 0 #00fff7; }
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      text-align: left;
+      user-select: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      box-sizing: border-box;
+      user-select: text;
+    }
+
+    input:focus {
+      outline: 2px solid #7f5af0;
+      background: #1a1a1a;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1.5rem;
+      background: #7f5af0;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      color: black;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover,
+    button:focus {
+      background: #a37aff;
+      outline: none;
+    }
+
+    .message {
+      margin-top: 1rem;
+      font-weight: 600;
+      min-height: 1.2em;
+      user-select: none;
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        width: 90%;
+        padding: 1.8rem 1.5rem;
+      }
+
+      header nav a {
+        margin: 0 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header id="header">
+  <div><strong>ZSH</strong></div>
+  <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+  </nav>
+</header>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<div class="container" role="main" aria-label="Форма входа на сайт ZSH">
+  <h1>Вход</h1>
+  <form id="loginForm" novalidate>
+    <label for="username">Логин</label>
+    <input id="username" name="username" type="text" required minlength="3" maxlength="15" pattern="[a-zA-Z0-9]+" title="Только латинские буквы и цифры" autocomplete="username" aria-required="true" />
+    <label for="password">Пароль</label>
+    <input id="password" name="password" type="password" required minlength="6" autocomplete="current-password" aria-required="true" />
+    <button type="submit">Войти</button>
+  </form>
+  <div class="message" id="message" role="alert" aria-live="polite"></div>
+  <a href="{{ url_for('main.register') }}" tabindex="0">Нет аккаунта? Зарегистрироваться</a>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = e.target.username.value.trim();
+    const password = e.target.password.value;
+    const messageEl = document.getElementById('message');
+
+    if (!e.target.checkValidity()) {
+      messageEl.style.color = 'red';
+      messageEl.textContent = 'Пожалуйста, корректно заполните все поля.';
+      return;
+    }
+
+    try {
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        messageEl.style.color = 'lime';
+        messageEl.textContent = 'Вход успешен! Перенаправление...';
+        setTimeout(() => {
+          window.location.href = '{{ url_for("main.index") }}';
+        }, 1500);
+      } else {
+        messageEl.style.color = 'red';
+        messageEl.textContent = data.message;
+      }
+    } catch (error) {
+      messageEl.style.color = 'red';
+      messageEl.textContent = 'Произошла ошибка. Попробуйте снова.';
+    }
+  });
+
+  // THREE.js фон
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('bg'), alpha: true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.position.z = 5;
+
+  const geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 100, 16);
+  const material = new THREE.MeshStandardMaterial({color: 0x7f5af0});
+  const knot = new THREE.Mesh(geometry, material);
+  scene.add(knot);
+
+  const light = new THREE.PointLight(0xffffff, 1, 100);
+  light.position.set(5, 5, 5);
+  scene.add(light);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    knot.rotation.x += 0.01;
+    knot.rotation.y += 0.005;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+
+</body>
+</html>

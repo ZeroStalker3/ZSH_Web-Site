@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Ошибка | ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0a0a0a;
+      color: white;
+      overflow: hidden;
+    }
+
+    .glitch {
+      position: relative;
+      font-size: 5rem;
+      text-align: center;
+      color: #7f5af0;
+      animation: glitch 2s infinite;
+      margin-top: 20vh;
+    }
+
+    @keyframes glitch {
+      0%, 100% { text-shadow: 2px 2px #ff00c8, -2px -2px #00fff7; }
+      25% { text-shadow: -3px 2px #ff00c8, 2px -3px #00fff7; }
+      50% { text-shadow: 2px -3px #ff00c8, -3px 3px #00fff7; }
+      75% { text-shadow: -2px 3px #ff00c8, 3px -2px #00fff7; }
+    }
+
+    .sub {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 1rem;
+      color: #ccc;
+    }
+
+    .portal-button {
+      display: block;
+      margin: 3rem auto;
+      padding: 1rem 2rem;
+      background: #7f5af0;
+      color: black;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #7f5af0aa;
+      transition: transform 0.2s ease;
+    }
+    .portal-button:hover {
+      transform: scale(1.1);
+    }
+
+    .glitch-bg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: repeating-linear-gradient(180deg, rgba(127,90,240,0.03) 0 2px, transparent 2px 4px);
+      animation: scanlines 1s infinite linear;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes scanlines {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100%; }
+    }
+
+    .header-glitch {
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+      animation: headerFall 5s ease-in forwards;
+    }
+
+    @keyframes headerFall {
+      0% { transform: rotate(0) translateY(0); }
+      30% { transform: rotate(-5deg) translateY(10px); }
+      60% { transform: rotate(10deg) translateY(200px); }
+      100% { transform: rotate(-20deg) translateY(150vh); }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-glitch">
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="{{ url_for('main.index') }}">Главная</a>
+      <a href="{{ url_for('main.games') }}">Игры</a>
+    </nav>
+  </div>
+
+  <div class="glitch">Ошибка 404</div>
+  <div class="sub">Похоже, ты попал в другую реальность...</div>
+  <button class="portal-button" onclick="openSecretPortal()">🔮 Войти в портал</button>
+  <div class="glitch-bg"></div>
+
+  <script>
+    function openSecretPortal() {
+      document.body.innerHTML = `<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:black;color:#7f5af0;display:flex;justify-content:center;align-items:center;font-size:3rem;text-align:center;animation: fadeIn 2s forwards;">
+        <div>
+          Портал активирован<br><br>
+          <button onclick=\"location.href='https://zsh-secret-game.vercel.app'\" style=\"margin-top:20px;padding:10px 20px;font-size:1rem;background:#7f5af0;border:none;border-radius:5px;\">Перейти в игру</button>
+        </div>
+      </div>`;
+    }
+  </script>
+</body>
+</html>

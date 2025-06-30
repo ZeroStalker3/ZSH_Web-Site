@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Регистрация — ZSH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Orbitron', sans-serif;
+      background: #0a0a0a;
+      color: #eee;
+      overflow-x: hidden;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Шапка */
+    header {
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    /* Видео фон */
+    canvas#bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Контейнер формы */
+    .container {
+      position: relative;
+      z-index: 2;
+      background: rgba(34, 34, 34, 0.85);
+      max-width: 360px;
+      width: 90%;
+      margin: 120px auto 60px; /* чтобы не заезжать под шапку */
+      border-radius: 14px;
+      box-shadow: 0 0 30px #7f5af0cc;
+      padding: 2.5rem 2rem 2.5rem 2rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    h1 {
+      color: #7f5af0;
+      margin-bottom: 1.5rem;
+      font-size: 2.8rem;
+      font-weight: 700;
+      text-shadow: 0 0 20px #7f5af0;
+      animation: glitch 2s infinite;
+      user-select: none;
+    }
+    @keyframes glitch {
+      0%, 100% { text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8; }
+      20% { text-shadow: -2px -2px #7f5af0, 2px 2px #ff00c8; }
+      40% { text-shadow: 2px -2px #7f5af0, -2px 2px #ff00c8; }
+      60% { text-shadow: -2px 2px #7f5af0, 2px -2px #ff00c8; }
+      80% { text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8; }
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0 0.5rem;
+      text-align: left;
+      font-weight: 600;
+      color: #a0d8ff;
+      user-select: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      border: none;
+      font-size: 1.1rem;
+      background: #121212;
+      color: #eee;
+      box-sizing: border-box;
+      transition: background-color 0.3s ease;
+      user-select: text;
+    }
+    input:focus {
+      outline: 2px solid #7f5af0;
+      background: #1a1a1a;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1.8rem;
+      background: #7f5af0;
+      border: none;
+      padding: 0.9rem;
+      border-radius: 14px;
+      font-weight: 700;
+      color: #0a0a0a;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 0 15px #7f5af0bb;
+      user-select: none;
+    }
+    button:hover,
+    button:focus {
+      background: #a37aff;
+      outline: none;
+      box-shadow: 0 0 30px #a37affdd;
+    }
+
+    .message {
+      margin-top: 1rem;
+      font-weight: 600;
+      min-height: 1.4em;
+      user-select: none;
+    }
+
+
+    @media (max-width: 400px) {
+      .container {
+        width: 90%;
+        padding: 1.8rem 1.5rem;
+      }
+
+      header nav a {
+        margin: 0 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header id="header">
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+    </nav>
+  </header>
+
+  <canvas id="bg"></canvas>
+
+  <main class="container" role="main" aria-labelledby="pageTitle">
+    <h1 id="pageTitle">Регистрация</h1>
+    <form id="registerForm" novalidate>
+      <label for="username">Логин</label>
+      <input
+        id="username"
+        name="username"
+        type="text"
+        required
+        minlength="3"
+        maxlength="15"
+        pattern="[a-zA-Z0-9]+"
+        title="Только латинские буквы и цифры"
+        autocomplete="username"
+        aria-describedby="usernameHelp"
+      />
+      <label for="password">Пароль</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        required
+        minlength="6"
+        autocomplete="new-password"
+      />
+      <label for="password2">Подтвердите пароль</label>
+      <input
+        id="password2"
+        name="password2"
+        type="password"
+        required
+        minlength="6"
+        autocomplete="new-password"
+      />
+      <button type="submit" aria-live="polite" aria-atomic="true">Зарегистрироваться</button>
+    </form>
+    <div class="message" id="message" role="alert" aria-live="polite"></div>
+    <a href="{{ url_for('main.login') }}">Уже есть аккаунт? Войти</a>
+  </main>
+
+<script>
+  async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = e.target.username.value.trim();
+    const password = e.target.password.value;
+    const password2 = e.target.password2.value;
+    const messageEl = document.getElementById('message');
+
+    // Валидация совпадения паролей
+    if (password !== password2) {
+      messageEl.style.color = 'red';
+      messageEl.textContent = 'Пароли не совпадают';
+      return;
+    }
+
+    // Получение пользователей из localStorage
+    let users = JSON.parse(localStorage.getItem('zsh_users') || '{}');
+
+    if (users[username]) {
+      messageEl.style.color = 'red';
+      messageEl.textContent = 'Пользователь с таким логином уже существует';
+      return;
+    }
+
+    const hashed = await hashPassword(password);
+    users[username] = { passwordHash: hashed };
+    localStorage.setItem('zsh_users', JSON.stringify(users));
+
+    messageEl.style.color = 'lime';
+    messageEl.textContent = 'Регистрация успешна! Перенаправление...';
+
+    setTimeout(() => {
+      window.location.href = '{{ url_for('main.login') }}';
+    }, 1500);
+  });
+
+  // Three.js фон-анимация
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.position.z = 5;
+
+  const geometry = new THREE.TorusKnotGeometry(1.2, 0.4, 100, 16);
+  const material = new THREE.MeshStandardMaterial({ color: 0x7f5af0, roughness: 0.6, metalness: 0.8 });
+  const knot = new THREE.Mesh(geometry, material);
+  scene.add(knot);
+
+  const light = new THREE.PointLight(0xffffff, 1, 100);
+  light.position.set(5,5,5);
+  scene.add(light);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    knot.rotation.x += 0.01;
+    knot.rotation.y += 0.005;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+</body>
+</html>

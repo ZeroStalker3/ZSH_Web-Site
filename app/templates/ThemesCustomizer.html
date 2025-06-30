@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Темы оформления — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --text: #eee;
+      --accent: #7f5af0;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(10, 10, 10, 0.85);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 15px var(--accent);
+      z-index: 10;
+    }
+
+    header div strong {
+      color: var(--accent);
+      font-size: 1.6rem;
+      text-shadow: 0 0 20px var(--accent);
+    }
+
+    nav a {
+      color: var(--text);
+      margin-left: 1.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+    nav a:first-child {
+      margin-left: 0;
+    }
+    nav a:hover,
+    nav a:focus {
+      color: var(--accent);
+      outline: none;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -4px;
+      width: 100%;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: 1000px;
+      margin: 100px auto 40px;
+      padding: 0 1.5rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    h1 {
+      color: var(--accent);
+      margin-bottom: 2rem;
+      user-select: none;
+    }
+
+    .themes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .theme-option {
+      width: 180px;
+      height: 120px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(127, 90, 240, 0.25);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      border: 2px solid transparent;
+    }
+
+    .theme-option:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 30px var(--accent);
+      border-color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      color: #777;
+      font-size: 0.9rem;
+      user-select: none;
+      border-top: 1px solid #222;
+      background: #070707;
+    }
+
+    .page-controls {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .page-controls button {
+      background: var(--accent);
+      border: none;
+      padding: 0.8rem 1.8rem;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #000;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
+      box-shadow: 0 0 15px var(--accent);
+    }
+
+    .page-controls button:hover {
+      background: #a37aff;
+      box-shadow: 0 0 25px #a37aff;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="about.html">О нас</a>
+      <a href="games.html">Игры</a>
+      <a href="themes.html">Темы</a>
+      <a href="login.html">Войти</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Выберите тему оформления</h1>
+    <div class="themes">
+      <div
+        class="theme-option"
+        style="background: #0a0a0a; color: white;"
+        onclick="applyTheme('#0a0a0a','#eee','#7f5af0')"
+        role="button" tabindex="0"
+        onkeypress="if(event.key==='Enter') applyTheme('#0a0a0a','#eee','#7f5af0')"
+        aria-label="Тёмная тема"
+      >
+        Тёмная
+      </div>
+      <div
+        class="theme-option"
+        style="background: #ffffff; color: #000;"
+        onclick="applyTheme('#ffffff','#000','#ff5af0')"
+        role="button" tabindex="0"
+        onkeypress="if(event.key==='Enter') applyTheme('#ffffff','#000','#ff5af0')"
+        aria-label="Светлая тема"
+      >
+        Светлая
+      </div>
+      <div
+        class="theme-option"
+        style="background: #1e1e2f; color: #00ffcc;"
+        onclick="applyTheme('#1e1e2f','#00ffcc','#00ffff')"
+        role="button" tabindex="0"
+        onkeypress="if(event.key==='Enter') applyTheme('#1e1e2f','#00ffcc','#00ffff')"
+        aria-label="Неоновая тема"
+      >
+        Неоновая
+      </div>
+      <div
+        class="theme-option"
+        style="background: #000000; color: #ff0000;"
+        onclick="applyTheme('#000000','#ff0000','#ff5500')"
+        role="button" tabindex="0"
+        onkeypress="if(event.key==='Enter') applyTheme('#000000','#ff0000','#ff5500')"
+        aria-label="Киберпанк тема"
+      >
+        Киберпанк
+      </div>
+    </div>
+
+    <div class="page-controls">
+      <button onclick="window.location.href='index.html'">Главная</button>
+      <button onclick="history.back()">Назад</button>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Zero Space Hack — Темы оформления
+  </footer>
+
+  <script>
+    function applyTheme(bg, text, accent) {
+      document.documentElement.style.setProperty('--bg', bg);
+      document.documentElement.style.setProperty('--text', text);
+      document.documentElement.style.setProperty('--accent', accent);
+      localStorage.setItem('zsh_theme', JSON.stringify({bg, text, accent}));
+    }
+
+    // Загрузка темы из localStorage
+    const saved = localStorage.getItem('zsh_theme');
+    if (saved) {
+      const theme = JSON.parse(saved);
+      applyTheme(theme.bg, theme.text, theme.accent);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админка ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0a0a0a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    h1 {
+      color: #7f5af0;
+      margin-bottom: 1rem;
+      text-align: center;
+      animation: glitch 1.2s infinite;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 1px 1px #ff00c8, -1px -1px #00fff7; }
+      20% { text-shadow: -1px 2px #ff00c8, 2px -1px #00fff7; }
+      40% { text-shadow: 2px -2px #ff00c8, -1px 2px #00fff7; }
+      60% { text-shadow: -2px 2px #ff00c8, 1px -2px #00fff7; }
+      80% { text-shadow: 1px -1px #ff00c8, -2px 1px #00fff7; }
+      100% { text-shadow: 0 0 #ff00c8, 0 0 #00fff7; }
+    }
+
+    .box {
+      width: 100%;
+      max-width: 420px;
+      background: #111;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(127, 90, 240, 0.4);
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      background: #222;
+      color: white;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      background: #7f5af0;
+      color: black;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background: #a78af0;
+    }
+
+    .message {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: red;
+      min-height: 1.2em;
+    }
+
+    .page-controls {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .page-controls button {
+      width: auto;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      color: white;
+      background: transparent;
+      border: 1.5px solid #7f5af0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .page-controls button:hover {
+      background: #7f5af0;
+      color: black;
+    }
+
+    @media (max-width: 500px) {
+      .box {
+        margin: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="box" id="login-box">
+  <h1>Вход в админ-панель</h1>
+  <input type="text" id="admin-user" placeholder="Логин" autocomplete="username" />
+  <input type="password" id="admin-pass" placeholder="Пароль" autocomplete="current-password" />
+  <button onclick="loginAdmin()">Войти</button>
+  <div class="message" id="admin-msg"></div>
+  <div class="page-controls">
+    <button id="enter-btn">Главная</button>
+      <script>
+      document.getElementById('enter-btn').onclick = function() {
+        window.location.href = "{{ url_for('main.index') }}";
+      };
+    </script>
+    <button id="about-btn">О нас</button>
+      <script>
+      document.getElementById('about-btn').onclick = function() {
+        window.location.href = "{{ url_for('main.about') }}";
+      };
+    </script>
+    <button onclick="history.back()">Назад</button>
+  </div>
+</div>
+
+<div class="box" id="panel" style="display: none;">
+  <h1>🎛 Админ-панель</h1>
+  <p>Добро пожаловать, администратор.</p>
+  <p>Здесь в будущем будет панель управления контентом сайта.</p>
+  <button onclick="logout()">Выйти</button>
+  <div class="page-controls">
+    <button onclick="location.href='index.html'">Главная</button>
+    <button onclick="location.href='about.html'">О нас</button>
+    <button onclick="history.back()">Назад</button>
+  </div>
+</div>
+
+<script>
+  const ADMIN_CREDENTIALS = {
+    username: 'root',
+    password: 'toor2025'
+  };
+
+  function loginAdmin() {
+    const u = document.getElementById('admin-user').value.trim();
+    const p = document.getElementById('admin-pass').value;
+    const msg = document.getElementById('admin-msg');
+
+    if (u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password) {
+      localStorage.setItem('zsh_admin', 'true');
+      showPanel();
+      msg.textContent = '';
+    } else {
+      msg.textContent = 'Неверные данные';
+    }
+  }
+
+  function showPanel() {
+    document.getElementById('login-box').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+  }
+
+  function logout() {
+    localStorage.removeItem('zsh_admin');
+    location.reload();
+  }
+
+  // Автоматический вход
+  if (localStorage.getItem('zsh_admin') === 'true') {
+    showPanel();
+  }
+</script>
+</body>
+</html>

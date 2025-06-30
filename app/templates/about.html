@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>О нас — ZSH</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #0a0a0a;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      overflow: hidden;
+    }
+
+    header {
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+      margin: 0 0 30px 0;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      padding: 8rem 2rem 4rem;
+      max-width: 900px;
+      margin: auto;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      overflow-y: auto;
+      max-height: calc(100vh - 100px);
+      box-shadow: 0 0 25px #7f5af0aa;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #7f5af0;
+      margin-bottom: 1rem;
+      text-align: center;
+      animation: glitch 1s infinite;
+      position: relative;
+    }
+
+    @keyframes glitch {
+      0% { text-shadow: 2px 2px #ff00c8, -2px -2px #00fff7; }
+      20% { text-shadow: -2px 1px #ff00c8, 2px -1px #00fff7; }
+      40% { text-shadow: 2px -2px #ff00c8, -1px 2px #00fff7; }
+      60% { text-shadow: -1px 2px #ff00c8, 1px -2px #00fff7; }
+      80% { text-shadow: 2px 1px #ff00c8, -2px -1px #00fff7; }
+      100% { text-shadow: 0 0 #ff00c8, 0 0 #00fff7; }
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #ccc;
+      text-align: justify;
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      display: block;
+    }
+
+    /* Glitch lines overlay */
+    .glitch-lines {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .glitch-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: rgba(255,255,255,0.05);
+      animation: flickerLine 3s infinite ease-in-out;
+    }
+    @keyframes flickerLine {
+      0%, 100% { transform: scaleX(1); opacity: 0.1; }
+      50% { transform: scaleX(1.2); opacity: 0.3; }
+    }
+
+    @media (max-width: 600px) {
+      main {
+        max-height: calc(100vh - 80px);
+        padding: 6rem 1rem 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div class="glitch-lines"></div>
+
+  <header>
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>О компании ZSH</h1>
+    <p>
+      Мы — команда мечтателей, инженеров и художников, создающих новые цифровые миры.
+      Наша миссия — стереть границы между игроком и игровой реальностью. С момента основания в 2023 году
+      мы разрабатываем игры, способные удивлять, вдохновлять и вовлекать с первого кадра.
+    </p>
+    <p>
+      В ZSH мы сочетаем технологии WebGL, генеративный дизайн, тактический геймплей и глубокое повествование.
+      Мы не просто создаём игры — мы строим вселенные.
+    </p>
+    <p>
+      Присоединяйтесь к нашему путешествию в будущее. Добро пожаловать в ZSH.
+    </p>
+  </main>
+
+  <script>
+    // WebGL фон
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.z = 5;
+
+    const geometry = new THREE.TorusKnotGeometry(1.5, 0.4, 100, 16);
+    const material = new THREE.MeshStandardMaterial({ color: 0x7f5af0, metalness: 0.6, roughness: 0.2 });
+    const torus = new THREE.Mesh(geometry, material);
+    scene.add(torus);
+
+    const light = new THREE.PointLight(0xffffff);
+    light.position.set(5, 5, 5);
+    scene.add(light);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      torus.rotation.x += 0.01;
+      torus.rotation.y += 0.005;
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Глитч линии
+    const glitchLines = document.querySelector('.glitch-lines');
+    for (let i = 0; i < 15; i++) {
+      const line = document.createElement('div');
+      line.className = 'glitch-line';
+      line.style.top = `${Math.random() * 100}%`;
+      line.style.animationDuration = `${1.5 + Math.random() * 3}s`;
+      glitchLines.appendChild(line);
+    }
+  </script>
+</body>
+</html>

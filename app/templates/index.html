@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Главная — ZSH</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- FontAwesome для иконок (если понадобится) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Orbitron шрифт -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+
+  <style>
+    html, body {
+      margin: 0; padding: 0; height: 100%;
+      font-family: 'Orbitron', sans-serif;
+      overflow-x: hidden;
+      background: black;
+      color: white;
+    }
+
+    /* Фиксированный хедер */
+    header {
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px #7f5af0aa;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+    nav a:hover {
+      color: #7f5af0;
+    }
+
+    /* Видео фон */
+    video.bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      filter: brightness(0.3);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Главный блок с текстом */
+    .hero {
+      min-height: 100vh;
+      padding: 0 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      text-shadow:
+        2px 2px 5px #7f5af0,
+        -2px -2px 5px #ff00c8;
+      margin: 0;
+      animation: glitch 2s infinite ease-in-out;
+      user-select: none;
+      letter-spacing: 4px;
+    }
+
+    .hero p {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      max-width: 600px;
+      color: #ccc;
+      margin: 1rem 0 2rem;
+      line-height: 1.5;
+    }
+
+    /* Кнопка входа */
+    .enter-btn {
+      background: transparent;
+      border: 2px solid #7f5af0;
+      padding: 1rem 2rem;
+      color: #7f5af0;
+      font-size: 1rem;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s ease, color 0.3s ease;
+      border-radius: 6px;
+      font-weight: 700;
+      user-select: none;
+      letter-spacing: 1.5px;
+    }
+
+    .enter-btn:hover,
+    .enter-btn:focus {
+      background: #7f5af0;
+      color: black;
+      outline: none;
+    }
+
+    footer {
+      position: relative;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+      color: #999;
+      font-size: 0.9rem;
+      user-select: none;
+      margin-top: 2rem;
+    }
+
+    /* Анимация glitch для заголовка */
+    @keyframes glitch {
+      0% {
+        text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8;
+      }
+      20% {
+        text-shadow: -2px -2px #7f5af0, 2px 2px #ff00c8;
+      }
+      40% {
+        text-shadow: 2px -2px #7f5af0, -2px 2px #ff00c8;
+      }
+      60% {
+        text-shadow: -2px 2px #7f5af0, 2px -2px #ff00c8;
+      }
+      80% {
+        text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8;
+      }
+      100% {
+        text-shadow: 0 0 20px #7f5af0;
+      }
+    }
+
+    
+
+    /* Адаптивность */
+    @media (max-width: 600px) {
+      header nav a {
+        margin: 0 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        max-width: 90%;
+        font-size: 1rem;
+      }
+
+      .enter-btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header id="header">
+  <div><strong>ZSH</strong></div>
+  <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a> 
+      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+  </nav>
+</header>
+
+  <video autoplay muted loop playsinline class="bg-video" preload="auto" aria-hidden="true" tabindex="-1">
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-hacker-typing-on-a-laptop-5635-large.mp4" type="video/mp4" />
+    Ваш браузер не поддерживает видео фон.
+  </video>
+
+  <section class="hero" role="main" aria-label="Главный приветственный блок">
+    <h1>ZERO SPACE HACK</h1>
+    <p>Инновационные цифровые вселенные. Тактические приключения. Эстетика будущего.</p>
+    <button class="enter-btn" id="enter-btn" aria-label="Войти в мир игр ZSH">Войти в мир</button>
+    <script>
+      document.getElementById('enter-btn').onclick = function() {
+        window.location.href = "{{ url_for('main.about') }}";
+      };
+    </script>
+  </section>
+
+  <footer>
+    &copy; 2025 Zero Space Hack — Все права защищены.
+  </footer>
+
+  <script>
+    // Скрытая пасхалка: при нажатии Ctrl+Shift+Z переходим на пасхалку
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') {
+        window.location.href = 'easteregg.html';
+      }
+    });
+  </script>
+
+</body>
+</html>
