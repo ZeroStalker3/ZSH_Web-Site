@@ -6,9 +6,7 @@
   <title>Админка ZSH</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -48,17 +46,6 @@
       text-align: center;
     }
 
-    input {
-      width: 100%;
-      margin-bottom: 1rem;
-      padding: 0.6rem;
-      border-radius: 8px;
-      border: none;
-      font-size: 1rem;
-      background: #222;
-      color: white;
-    }
-
     button {
       width: 100%;
       padding: 0.8rem;
@@ -75,13 +62,6 @@
 
     button:hover {
       background: #a78af0;
-    }
-
-    .message {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      color: red;
-      min-height: 1.2em;
     }
 
     .page-controls {
@@ -110,83 +90,25 @@
     }
 
     @media (max-width: 500px) {
-      .box {
-        margin: 1rem;
-      }
+      .box { margin: 1rem; }
     }
   </style>
 </head>
 <body>
 
-<div class="box" id="login-box">
-  <h1>Вход в админ-панель</h1>
-  <input type="text" id="admin-user" placeholder="Логин" autocomplete="username" />
-  <input type="password" id="admin-pass" placeholder="Пароль" autocomplete="current-password" />
-  <button onclick="loginAdmin()">Войти</button>
-  <div class="message" id="admin-msg"></div>
-  <div class="page-controls">
-    <button id="enter-btn">Главная</button>
-      <script>
-      document.getElementById('enter-btn').onclick = function() {
-        window.location.href = "{{ url_for('main.index') }}";
-      };
-    </script>
-    <button id="about-btn">О нас</button>
-      <script>
-      document.getElementById('about-btn').onclick = function() {
-        window.location.href = "{{ url_for('main.about') }}";
-      };
-    </script>
-    <button onclick="history.back()">Назад</button>
-  </div>
-</div>
-
-<div class="box" id="panel" style="display: none;">
+<div class="box">
   <h1>🎛 Админ-панель</h1>
-  <p>Добро пожаловать, администратор.</p>
+  <p>Добро пожаловать, {{ current_user.username }}.</p>
   <p>Здесь в будущем будет панель управления контентом сайта.</p>
-  <button onclick="logout()">Выйти</button>
+  <a href="{{ url_for('main.logout') }}">
+    <button>Выйти</button>
+  </a>
   <div class="page-controls">
-    <button onclick="location.href='index.html'">Главная</button>
-    <button onclick="location.href='about.html'">О нас</button>
-    <button onclick="history.back()">Назад</button>
+    <button onclick="location.href='{{ url_for('main.index') }}'">Главная</button>
+    <button onclick="location.href='{{ url_for('main.about') }}'">О нас</button>
   </div>
 </div>
 
-<script>
-  const ADMIN_CREDENTIALS = {
-    username: 'root',
-    password: 'toor2025'
-  };
-
-  function loginAdmin() {
-    const u = document.getElementById('admin-user').value.trim();
-    const p = document.getElementById('admin-pass').value;
-    const msg = document.getElementById('admin-msg');
-
-    if (u === ADMIN_CREDENTIALS.username && p === ADMIN_CREDENTIALS.password) {
-      localStorage.setItem('zsh_admin', 'true');
-      showPanel();
-      msg.textContent = '';
-    } else {
-      msg.textContent = 'Неверные данные';
-    }
-  }
-
-  function showPanel() {
-    document.getElementById('login-box').style.display = 'none';
-    document.getElementById('panel').style.display = 'block';
-  }
-
-  function logout() {
-    localStorage.removeItem('zsh_admin');
-    location.reload();
-  }
-
-  // Автоматический вход
-  if (localStorage.getItem('zsh_admin') === 'true') {
-    showPanel();
-  }
 </script>
 </body>
 </html>

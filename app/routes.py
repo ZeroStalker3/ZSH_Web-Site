@@ -1,10 +1,12 @@
+import os
+from werkzeug.utils import secure_filename
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFError
 from . import csrf
 from werkzeug.security import generate_password_hash, check_password_hash
-from .forms import RegistrationForm, LoginForm
-from .models import User
+from .forms import RegistrationForm, LoginForm, ProfileForm, PasswordChangeForm, SocialLinksForm
+from .models import SocialLinks, User
 from . import db, bcrypt
 
 
@@ -38,10 +40,70 @@ def contact():
 def easteregg():
     return render_template('easteregg.html')
 
-@main.route('/profile')
+@main.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('profile.html', user=current_user)
+    profile_form = ProfileForm()
+    password_form = PasswordChangeForm()
+    social_form = SocialLinksForm(obj=current_user.social_links or SocialLinks())
+
+    if 'save_profile' in request.form and profile_form.validate_on_submit():
+        current_user.username = profile_form.username.data
+        current_user.email = profile_form.email.data
+
+        if profile_form.avatar.data:
+            avatar_file = secure_filename(profile_form.avatar.data.filename)
+            avatar_path = os.path.join('static/avatars', avatar_file)
+            profile_form.avatar.data.save(avatar_path)
+            current_user.avatar = avatar_path
+
+        db.session.commit()
+        flash('Профиль обновлён', 'success')
+        return redirect(url_for('main.profile'))
+
+    elif 'change_password' in request.form and password_form.validate_on_submit():
+        if not current_user.check_password(password_form.current_password.data):
+            flash('Текущий пароль неверен', 'danger')
+        elif password_form.current_password.data == password_form.new_password.data:
+            flash('Новый пароль совпадает с текущим', 'danger')
+        else:
+            current_user.set_password(password_form.new_password.data)
+            db.session.commit()
+            flash('Пароль успешно изменён', 'success')
+            return redirect(url_for('main.profile'))
+
+    elif 'save_socials' in request.form and social_form.validate_on_submit():
+        if current_user.social_links:
+            current_user.social_links.telegram = social_form.telegram.data
+            current_user.social_links.discord = social_form.discord.data
+            current_user.social_links.steam = social_form.steam.data
+        else:
+            new_links = SocialLinks(
+                user=current_user,
+                telegram=social_form.telegram.data,
+                discord=social_form.discord.data,
+                steam=social_form.steam.data
+            )
+            db.session.add(new_links)
+        db.session.commit()
+        flash('Соцсети обновлены', 'success')
+        return redirect(url_for('main.profile'))
+
+    # Инициализация значений форм
+    profile_form.username.data = current_user.username
+    profile_form.email.data = current_user.email
+    if current_user.social_links:
+        social_form.telegram.data = current_user.social_links.telegram
+        social_form.discord.data = current_user.social_links.discord
+        social_form.steam.data = current_user.social_links.steam
+
+    return render_template(
+        'profile.html',
+        profile_form=profile_form,
+        password_form=password_form,
+        social_form=social_form,
+        user=current_user
+    )
 
 @main.route('/register', methods=['GET', 'POST'])
 def register():

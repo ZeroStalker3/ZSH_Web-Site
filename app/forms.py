@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 class RegistrationForm(FlaskForm):
@@ -13,3 +13,21 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')
+
+class ProfileForm(FlaskForm):
+    username = StringField('Имя пользователя')
+    email = StringField('Email')
+    avatar = FileField('Аватар')
+    submit = SubmitField('Сохранить изменения')  # Удалено render_kw
+
+class PasswordChangeForm(FlaskForm):
+    current_password = PasswordField('Текущий пароль', validators=[DataRequired()])
+    new_password = PasswordField('Новый пароль', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Подтвердите новый пароль', validators=[DataRequired(), EqualTo('new_password')])
+    submit = SubmitField('Сменить пароль')  # Удалено render_kw
+
+class SocialLinksForm(FlaskForm):
+    telegram = StringField('Telegram')
+    discord = StringField('Discord')
+    steam = StringField('Steam')
+    submit = SubmitField('Сохранить')  # Удалено render_kw
