@@ -1,6 +1,7 @@
 import os
+import uuid
 from werkzeug.utils import secure_filename
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, current_app, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFError
 from . import csrf
@@ -28,9 +29,13 @@ def games():
 def blog():
     return render_template('blog.html')
 
-@main.route('/404')
-def not_found():
-    return render_template('404.html')
+@main.route('/addpost')
+def add_post():
+    return render_template('addpost.html')
+
+@main.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
 
 @main.route('/contact')
 def contact():
@@ -51,11 +56,32 @@ def profile():
         current_user.username = profile_form.username.data
         current_user.email = profile_form.email.data
 
+        # Загрузка аватара
         if profile_form.avatar.data:
-            avatar_file = secure_filename(profile_form.avatar.data.filename)
-            avatar_path = os.path.join('static/avatars', avatar_file)
+            if profile_form.avatar.data.mimetype not in ['image/jpeg', 'image/png']:
+                flash('Файл должен быть изображением PNG или JPG', 'danger')
+                return redirect(url_for('main.profile'))
+
+            filename = secure_filename(profile_form.avatar.data.filename)
+            unique_filename = f"{uuid.uuid4().hex}_{filename}"
+
+            avatar_folder = os.path.join(current_app.root_path, 'static', 'avatars')
+            os.makedirs(avatar_folder, exist_ok=True)
+
+            avatar_path = os.path.join(avatar_folder, unique_filename)
+
+            # Только один вызов save()
             profile_form.avatar.data.save(avatar_path)
-            current_user.avatar = avatar_path
+
+            # Проверка успешности
+            if not os.path.exists(avatar_path):
+                print("❌ Файл не создан!")
+            else:
+                print("✅ Файл создан!", os.path.abspath(avatar_path))
+
+            # Относительный путь для отображения через Flask
+            current_user.avatar = f"avatars/{unique_filename}"
+
 
         db.session.commit()
         flash('Профиль обновлён', 'success')
@@ -89,7 +115,7 @@ def profile():
         flash('Соцсети обновлены', 'success')
         return redirect(url_for('main.profile'))
 
-    # Инициализация значений форм
+    # Инициализация значений
     profile_form.username.data = current_user.username
     profile_form.email.data = current_user.email
     if current_user.social_links:

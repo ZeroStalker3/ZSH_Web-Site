@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Дорожная карта — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0a0a0a;
+      color: white;
+    }
+
+    header {
+      position: fixed;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      top: 0;
+    }
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+
+    main {
+      padding: 8rem 2rem 4rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #7f5af0;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .stage {
+      margin-bottom: 2.5rem;
+    }
+    .stage h2 {
+      font-size: 1.5rem;
+      color: #7f5af0;
+    }
+    .progress {
+      background: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
+      box-shadow: 0 0 10px rgba(127, 90, 240, 0.4);
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #7f5af0, #00fff7);
+      width: 0;
+      transition: width 1s ease-out;
+    }
+
+    .completed .progress-bar {
+      width: 100% !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div><strong>ZSH</strong></div>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="about.html">О нас</a>
+      <a href="games.html">Игры</a>
+      <a href="blog.html">Блог</a>
+      <a href="roadmap.html">Дорожная карта</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Дорожная карта проекта</h1>
+
+    <div class="stage">
+      <h2>📦 Бета-версия сайта</h2>
+      <div class="progress"><div class="progress-bar" style="width: 95%;"></div></div>
+    </div>
+
+    <div class="stage">
+      <h2>🧠 AI Playground + визуализация</h2>
+      <div class="progress"><div class="progress-bar" style="width: 80%;"></div></div>
+    </div>
+
+    <div class="stage">
+      <h2>🎮 Игровой портал и WebGL-галерея</h2>
+      <div class="progress"><div class="progress-bar" style="width: 75%;"></div></div>
+    </div>
+
+    <div class="stage">
+      <h2>💬 Интерактивный блог + Easter Eggs</h2>
+      <div class="progress"><div class="progress-bar" style="width: 90%;"></div></div>
+    </div>
+
+    <div class="stage">
+      <h2>⚙️ CMS и модульная архитектура</h2>
+      <div class="progress"><div class="progress-bar" style="width: 60%;"></div></div>
+    </div>
+
+    <div class="stage">
+      <h2>🚀 Релиз первой мини-игры</h2>
+      <div class="progress"><div class="progress-bar" style="width: 45%;"></div></div>
+    </div>
+
+    <div class="stage">
+      <h2>🌌 Лаунчер и PWA-функции</h2>
+      <div class="progress"><div class="progress-bar" style="width: 30%;"></div></div>
+    </div>
+
+  </main>
+
+  <script>
+    // Запуск анимации прогресса после загрузки страницы
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.progress-bar').forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => {
+          bar.style.width = width;
+        }, 200);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -32,3 +32,15 @@ class SocialLinks(db.Model):
     telegram = db.Column(db.String(128))
     discord = db.Column(db.String(128))
     steam = db.Column(db.String(128))
+
+class BlogPost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(128), nullable=False)
+    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+    content = db.Column(db.Text, nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    author = db.relationship('User', backref='blog_posts')
+
+    def __repr__(self):
+        return f"<BlogPost('{self.title}', '{self.date_created}')>"

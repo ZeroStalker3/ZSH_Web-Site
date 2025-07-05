@@ -206,7 +206,6 @@
       outline: none;
       box-shadow: 0 0 20px #a37affdd;
     }
-
     
     /* Фиксированный хедер */
     html, body {
@@ -253,6 +252,23 @@
       color: #7f5af0;
     }
 
+    .social-icon img {
+      width: 48px;
+      height: 48px;
+      transition: opacity 0.2s ease;
+      margin-right: 10px;
+    }
+
+    .social-icon.inactive img {
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: default;
+    }
+
+    .social-icon.active img {
+      opacity: 1.0;
+    }
+
     /* Адаптив */
     @media (max-width: 900px) {
       .profile-container {
@@ -283,23 +299,24 @@
   <header id="header">
     <div><strong>ZSH</strong></div>
     <nav>
-        <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
-        <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
-        <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a> 
-        <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
-        <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
-        {% if current_user.is_authenticated %}
-          <a href="{{ url_for('main.profile') }}">Профиль</a>
-          {% if current_user.is_admin %}
-            <a href="{{ url_for('main.admin') }}">Админ</a>
-          {% endif %}
-          <a href="{{ url_for('main.logout') }}">Выйти</a>
-        {% else %}
-          <a href="{{ url_for('main.login') }}">Войти</a>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
+      <a href="{{ url_for('main.themes_customizer') }}" tabindex="4">Темы</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.profile') }}">Профиль</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('main.admin') }}">Админ</a>
         {% endif %}
+        <a href="{{ url_for('main.logout') }}">Выйти</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Войти</a>
+      {% endif %}
     </nav>
   </header>
 
+{% block content %}
   <h1>👤 Личный кабинет</h1>
   <div class="profile-container">
     <aside>
@@ -315,84 +332,148 @@
     </aside>
 
     <section class="content" role="region" aria-live="polite" aria-label="Содержание личного кабинета">
-      <div id="profile" class="content-section active" tabindex="0">
-        <img src="https://via.placeholder.com/110" class="avatar" alt="Аватар пользователя" />
-        <div class="form-group">
-          <label for="username">Имя пользователя</label>
-          <input type="text" id="username" value="ZSH_Player01" aria-label="Имя пользователя" />
+      
+      <!-- Форма профиля -->
+      <form method="POST" enctype="multipart/form-data" action="{{ url_for('main.profile') }}">
+        {{ profile_form.hidden_tag() }}
+        <div id="profile" class="content-section active" tabindex="0">
+            {% if user.avatar %}
+              <img src="{{ url_for('static', filename=user.avatar) }}" class="avatar" />
+            {% else %}
+              <img src="{{ url_for('static', filename='images/default.png') }}" class="avatar" />
+            {% endif %}
+          <div class="form-group">
+            {{ profile_form.username.label }}
+            {{ profile_form.username(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ profile_form.email.label }}
+            {{ profile_form.email(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ profile_form.avatar.label }}
+            {{ profile_form.avatar(class="form-control-file") }}
+          </div>
+          <button type="submit" name="save_profile" class="btn">Сохранить изменения</button>
         </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" value="player@zsh.games" aria-label="Email пользователя" />
-        </div>
-        <button class="btn" type="button" aria-label="Сохранить изменения профиля">Сохранить изменения</button>
-      </div>
+      </form>
 
+      <!-- Активность -->
       <div id="activity" class="content-section" tabindex="0" aria-hidden="true">
         <h2>История активности</h2>
         <div class="activity-item">💬 Комментарий в блоге: "Крутая статья!" — 12.06.2025</div>
-        <div class="activity-item">🎮 Игровая запись: Победа в «ZSH: Arena» — 10.06.2025</div>
-        <div class="activity-item">💬 Комментарий в форуме: "Есть баг в 1.2.1" — 08.06.2025</div>
+        <div class="activity-item">🎮 Победа в «ZSH: Arena» — 10.06.2025</div>
+        <div class="activity-item">💬 Форум: "Есть баг в 1.2.1" — 08.06.2025</div>
       </div>
 
+      <!-- Приватность -->
       <div id="privacy" class="content-section" tabindex="0" aria-hidden="true">
         <h2>Настройки приватности</h2>
         <div class="form-group">
-          <label><input type="checkbox" checked aria-checked="true" /> Показывать активность друзьям</label>
+          <label><input type="checkbox" checked /> Показывать активность друзьям</label>
         </div>
         <div class="form-group">
-          <label><input type="checkbox" aria-checked="false" /> Разрешить приглашения в кланы</label>
+          <label><input type="checkbox" /> Разрешить приглашения в кланы</label>
         </div>
-        <button class="btn" type="button" aria-label="Сохранить настройки приватности">Сохранить</button>
+        <button class="btn" type="button">Сохранить</button>
       </div>
 
+      <!-- Подписки -->
       <div id="subscriptions" class="content-section" tabindex="0" aria-hidden="true">
         <h2>Подписки</h2>
         <p>У вас активна подписка <strong>ZSH Premium</strong> до 01.08.2025</p>
-        <button class="btn" type="button" aria-label="Управление подпиской">Управление подпиской</button>
+        <button class="btn" type="button">Управление подпиской</button>
       </div>
 
-      <div id="password" class="content-section" tabindex="0" aria-hidden="true">
-        <h2>Смена пароля</h2>
-        <div class="form-group">
-          <label for="currentPass">Текущий пароль</label>
-          <input id="currentPass" type="password" aria-label="Текущий пароль" />
+      <!-- Форма смены пароля -->
+      <form method="POST" action="{{ url_for('main.profile') }}">
+        {{ password_form.hidden_tag() }}
+        <div id="password" class="content-section" tabindex="0" aria-hidden="true">
+          <h2>Смена пароля</h2>
+          <div class="form-group">
+            {{ password_form.current_password.label }}
+            {{ password_form.current_password(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ password_form.new_password.label }}
+            {{ password_form.new_password(class="form-control") }}
+          </div>
+          <div class="form-group">
+            {{ password_form.confirm_password.label }}
+            {{ password_form.confirm_password(class="form-control") }}
+          </div>
+          <button type="submit" name="change_password" class="btn">Сменить пароль</button>
         </div>
-        <div class="form-group">
-          <label for="newPass">Новый пароль</label>
-          <input id="newPass" type="password" aria-label="Новый пароль" />
-        </div>
-        <div class="form-group">
-          <label for="confirmPass">Подтверждение</label>
-          <input id="confirmPass" type="password" aria-label="Подтверждение нового пароля" />
-        </div>
-        <button class="btn" type="button" aria-label="Сменить пароль">Сменить пароль</button>
-      </div>
+      </form>
 
-      <div id="socials" class="content-section" tabindex="0" aria-hidden="true">
-        <h2>Привязка соцсетей</h2>
-        <div class="social-btns">
-          <a href="#" aria-label="Привязать Telegram">🔗 Telegram</a>
-          <a href="#" aria-label="Привязать Discord">🔗 Discord</a>
-          <a href="#" aria-label="Привязать Steam">🔗 Steam</a>
-        </div>
-      </div>
+      <!-- Форма соцсетей -->
+      <form method="POST" action="{{ url_for('main.profile') }}">
+        {{ social_form.hidden_tag() }}
+          <!-- Соцсети -->
+          <div id="socials" class="content-section" tabindex="0" aria-hidden="true">
+            <h2>Привязка соцсетей</h2>
+
+            <!-- Иконки соцсетей -->
+            <div class="d-flex align-items-center mb-3" style="gap: 20px;">
+              <a href="{{ social_form.telegram.data if social_form.telegram.data else '#' }}"
+                target="_blank"
+                class="social-icon {{ 'active' if social_form.telegram.data else 'inactive' }}"
+                title="Telegram">
+                <img src="{{ url_for('static', filename='icons/telegram.svg') }}" alt="Telegram">
+              </a>
+              <a href="{{ social_form.discord.data if social_form.discord.data else '#' }}"
+                target="_blank"
+                class="social-icon {{ 'active' if social_form.discord.data else 'inactive' }}"
+                title="Discord">
+                <img src="{{ url_for('static', filename='icons/discord.svg') }}" alt="Discord">
+              </a>
+              <a href="{{ social_form.steam.data if social_form.steam.data else '#' }}"
+                target="_blank"
+                class="social-icon {{ 'active' if social_form.steam.data else 'inactive' }}"
+                title="Steam">
+                <img src="{{ url_for('static', filename='icons/steam.svg') }}" alt="Steam">
+              </a>
+            </div>
+
+            <!-- Форма редактирования соцсетей -->
+            <form method="POST" action="{{ url_for('main.profile') }}" id="socials-edit-form" style="display: none;">
+              {{ social_form.hidden_tag() }}
+              <div class="form-group">
+                {{ social_form.telegram.label }}
+                {{ social_form.telegram(class="form-control") }}
+              </div>
+              <div class="form-group">
+                {{ social_form.discord.label }}
+                {{ social_form.discord(class="form-control") }}
+              </div>
+              <div class="form-group">
+                {{ social_form.steam.label }}
+                {{ social_form.steam(class="form-control") }}
+              </div>
+              <button type="submit" name="save_socials" class="btn">💾 Сохранить</button>
+            </form>
+          </div>
+      </form>
     </section>
   </div>
 
   <script>
-    // Навигация между вкладками с управлением aria-selected и aria-hidden
     const menuItems = document.querySelectorAll("#menu li");
     const sections = document.querySelectorAll(".content-section");
 
     menuItems.forEach(item => {
       item.addEventListener("click", () => activateTab(item));
       item.addEventListener("keydown", e => {
-        if (e.key === "Enter" || e.key === " "){
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           activateTab(e.target);
         }
       });
+    });
+
+    document.getElementById('edit-socials-btn').addEventListener('click', function () {
+    const form = document.getElementById('socials-edit-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
     });
 
     function activateTab(item) {
@@ -416,5 +497,4 @@
       section.focus();
     }
   </script>
-</body>
-</html>
+{% endblock %}

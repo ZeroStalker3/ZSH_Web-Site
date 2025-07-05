@@ -107,18 +107,22 @@
 
   <div class="glitch">Ошибка 404</div>
   <div class="sub">Похоже, ты попал в другую реальность...</div>
-  <button class="portal-button" onclick="openSecretPortal()">🔮 Войти в портал</button>
+  <button class="portal-button" id="enter-btn">🔮 Войти в портал</button>
+  <script>
+    document.getElementById('enter-btn').onclick = function() {
+      window.location.href = "{{ url_for('main.index') }}";
+    };
+  </script>
   <div class="glitch-bg"></div>
 
   <script>
-    function openSecretPortal() {
-      document.body.innerHTML = `<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:black;color:#7f5af0;display:flex;justify-content:center;align-items:center;font-size:3rem;text-align:center;animation: fadeIn 2s forwards;">
-        <div>
-          Портал активирован<br><br>
-          <button onclick=\"location.href='https://zsh-secret-game.vercel.app'\" style=\"margin-top:20px;padding:10px 20px;font-size:1rem;background:#7f5af0;border:none;border-radius:5px;\">Перейти в игру</button>
-        </div>
-      </div>`;
-    }
+//    function openSecretPortal() {
+//      document.body.innerHTML = `<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:black;color:#7f5af0;display:flex;justify-content:center;align-items:center;font-size:3rem;text-align:center;animation: fadeIn 2s forwards;">
+//        <div>
+//          Портал активирован<br><br>
+//          <button onclick=\"location.href='https://zsh-secret-game.vercel.app'\" style=\"margin-top:20px;padding:10px 20px;font-size:1rem;background:#7f5af0;border:none;border-radius:5px;\">Перейти в игру</button>
+//        </div>
+//      </div>`;    }
   </script>
 </body>
 </html>

@@ -18,16 +18,21 @@ class ProfileForm(FlaskForm):
     username = StringField('Имя пользователя')
     email = StringField('Email')
     avatar = FileField('Аватар')
-    submit = SubmitField('Сохранить изменения')  # Удалено render_kw
+    submit = SubmitField('Сохранить изменения') 
 
 class PasswordChangeForm(FlaskForm):
     current_password = PasswordField('Текущий пароль', validators=[DataRequired()])
     new_password = PasswordField('Новый пароль', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Подтвердите новый пароль', validators=[DataRequired(), EqualTo('new_password')])
-    submit = SubmitField('Сменить пароль')  # Удалено render_kw
+    submit = SubmitField('Сменить пароль') 
 
 class SocialLinksForm(FlaskForm):
     telegram = StringField('Telegram')
     discord = StringField('Discord')
     steam = StringField('Steam')
-    submit = SubmitField('Сохранить')  # Удалено render_kw
+    submit = SubmitField('Сохранить') 
+
+class BlogPostForm(FlaskForm):
+    title = StringField('Заголовок', validators=[DataRequired(), Length(max=128)])
+    content = StringField('Содержание', validators=[DataRequired()])
+    submit = SubmitField('Опубликовать')

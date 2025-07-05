@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Панель модератора — ZSH</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: #0a0a0a;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    canvas#bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 1rem 2rem;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 20px rgba(127, 90, 240, 0.3);
+    }
+
+    nav a {
+      color: white;
+      margin: 0 1rem;
+      text-decoration: none;
+      position: relative;
+    }
+    nav a:hover::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: #7f5af0;
+      bottom: -4px;
+      left: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 1000px;
+      margin: 8rem auto 2rem;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.65);
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(127, 90, 240, 0.2);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #7f5af0;
+      animation: glitch 1.5s infinite;
+    }
+
+    @keyframes glitch {
+      0%, 100% { text-shadow: 2px 2px #ff00c8, -2px -2px #00fff7; }
+      25% { text-shadow: -3px 2px #ff00c8, 2px -3px #00fff7; }
+      50% { text-shadow: 2px -3px #ff00c8, -3px 3px #00fff7; }
+      75% { text-shadow: -2px 3px #ff00c8, 3px -2px #00fff7; }
+    }
+
+    .panel-section {
+      margin-top: 2rem;
+    }
+
+    .panel-section h2 {
+      color: #7f5af0;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .moderation-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(127, 90, 240, 0.3);
+    }
+
+    .moderation-table th, .moderation-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #333;
+      text-align: left;
+    }
+
+    .moderation-table th {
+      background: #111;
+      color: #7f5af0;
+    }
+
+    .moderation-table tr:hover {
+      background: rgba(127, 90, 240, 0.1);
+    }
+
+    .btn {
+      padding: 0.4rem 0.8rem;
+      background: #7f5af0;
+      border: none;
+      color: black;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn:hover {
+      background: #a78bfa;
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<header>
+  <div><strong>ZSH</strong></div>
+  <nav>
+    <a href="index.html">Главная</a>
+    <a href="about.html">О нас</a>
+    <a href="games.html">Игры</a>
+    <a href="blog.html">Блог</a>
+    <a href="login.html">Войти</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Панель модератора</h1>
+
+  <div class="panel-section">
+    <h2>Жалобы пользователей</h2>
+    <table class="moderation-table">
+      <tr>
+        <th>Пользователь</th>
+        <th>Причина</th>
+        <th>Дата</th>
+        <th>Действие</th>
+      </tr>
+      <tr>
+        <td>GhostHunter</td>
+        <td>Оскорбления в чате</td>
+        <td>2025-06-22</td>
+        <td><button class="btn">Забанить</button></td>
+      </tr>
+      <tr>
+        <td>NekoCore</td>
+        <td>Спам</td>
+        <td>2025-06-21</td>
+        <td><button class="btn">Предупреждение</button></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel-section">
+    <h2>Подозрительные активности</h2>
+    <table class="moderation-table">
+      <tr>
+        <th>Пользователь</th>
+        <th>Активность</th>
+        <th>Время</th>
+        <th>Действие</th>
+      </tr>
+      <tr>
+        <td>Xx_H4x0r_xX</td>
+        <td>Пытался получить доступ к консоли</td>
+        <td>01:34</td>
+        <td><button class="btn">Заблокировать</button></td>
+      </tr>
+    </table>
+  </div>
+</main>
+
+<script>
+  // WebGL Background
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg"), alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.position.z = 5;
+
+  const geometry = new THREE.TorusKnotGeometry(1.5, 0.4, 100, 16);
+  const material = new THREE.MeshStandardMaterial({ color: 0x7f5af0 });
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  const light = new THREE.PointLight(0xffffff);
+  light.position.set(5, 5, 5);
+  scene.add(light);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    mesh.rotation.x += 0.01;
+    mesh.rotation.y += 0.005;
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+
+</body>
+</html>
