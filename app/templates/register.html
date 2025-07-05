@@ -189,89 +189,41 @@
 
   <canvas id="bg"></canvas>
 
-  <main class="container" role="main" aria-labelledby="pageTitle">
-    <h1 id="pageTitle">Регистрация</h1>
-    <form id="registerForm" novalidate>
-      <label for="username">Логин</label>
-      <input
-        id="username"
-        name="username"
-        type="text"
-        required
-        minlength="3"
-        maxlength="15"
-        pattern="[a-zA-Z0-9]+"
-        title="Только латинские буквы и цифры"
-        autocomplete="username"
-        aria-describedby="usernameHelp"
-      />
-      <label for="password">Пароль</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        required
-        minlength="6"
-        autocomplete="new-password"
-      />
-      <label for="password2">Подтвердите пароль</label>
-      <input
-        id="password2"
-        name="password2"
-        type="password"
-        required
-        minlength="6"
-        autocomplete="new-password"
-      />
-      <button type="submit" aria-live="polite" aria-atomic="true">Зарегистрироваться</button>
-    </form>
-    <div class="message" id="message" role="alert" aria-live="polite"></div>
-    <a href="{{ url_for('main.login') }}">Уже есть аккаунт? Войти</a>
-  </main>
+{% block content %}
+<main class="container" role="main" aria-labelledby="pageTitle">
+  <h1 id="pageTitle">Регистрация</h1>
+
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+
+    <label for="username">Имя пользователя</label>
+    {{ form.username(class="form-control", id="username", autocomplete="username", required=True) }}
+
+    <label for="email">Email</label>
+    {{ form.email(class="form-control", id="email", autocomplete="email", required=True) }}
+
+    <label for="password">Пароль</label>
+    {{ form.password(class="form-control", id="password", autocomplete="new-password", required=True) }}
+
+    <label for="confirm_password">Подтвердите пароль</label>
+    {{ form.confirm_password(class="form-control", id="confirm_password", autocomplete="new-password", required=True) }}
+
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <p><a href="{{ url_for('main.login') }}">Уже есть аккаунт? Войти</a></p>
+</main>
+{% endblock %}
 
 <script>
-  async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = e.target.username.value.trim();
-    const password = e.target.password.value;
-    const password2 = e.target.password2.value;
-    const messageEl = document.getElementById('message');
-
-    // Валидация совпадения паролей
-    if (password !== password2) {
-      messageEl.style.color = 'red';
-      messageEl.textContent = 'Пароли не совпадают';
-      return;
-    }
-
-    // Получение пользователей из localStorage
-    let users = JSON.parse(localStorage.getItem('zsh_users') || '{}');
-
-    if (users[username]) {
-      messageEl.style.color = 'red';
-      messageEl.textContent = 'Пользователь с таким логином уже существует';
-      return;
-    }
-
-    const hashed = await hashPassword(password);
-    users[username] = { passwordHash: hashed };
-    localStorage.setItem('zsh_users', JSON.stringify(users));
-
-    messageEl.style.color = 'lime';
-    messageEl.textContent = 'Регистрация успешна! Перенаправление...';
-
-    setTimeout(() => {
-      window.location.href = '{{ url_for('main.login') }}';
-    }, 1500);
-  });
 
   // Three.js фон-анимация
   const scene = new THREE.Scene();

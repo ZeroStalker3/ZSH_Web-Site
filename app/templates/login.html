@@ -176,56 +176,31 @@
 
 <div class="container" role="main" aria-label="Форма входа на сайт ZSH">
   <h1>Вход</h1>
-  <form id="loginForm" novalidate>
+  <form id="loginForm" method="POST" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label for="username">Логин</label>
     <input id="username" name="username" type="text" required minlength="3" maxlength="15" pattern="[a-zA-Z0-9]+" title="Только латинские буквы и цифры" autocomplete="username" aria-required="true" />
+    
     <label for="password">Пароль</label>
     <input id="password" name="password" type="password" required minlength="6" autocomplete="current-password" aria-required="true" />
+    
     <button type="submit">Войти</button>
   </form>
-  <div class="message" id="message" role="alert" aria-live="polite"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="message" role="alert" aria-live="polite">
+        {% for category, message in messages %}
+          <p class="{{ category }}">{{ message }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
   <a href="{{ url_for('main.register') }}" tabindex="0">Нет аккаунта? Зарегистрироваться</a>
 </div>
 
 <script>
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = e.target.username.value.trim();
-    const password = e.target.password.value;
-    const messageEl = document.getElementById('message');
-
-    if (!e.target.checkValidity()) {
-      messageEl.style.color = 'red';
-      messageEl.textContent = 'Пожалуйста, корректно заполните все поля.';
-      return;
-    }
-
-    try {
-      const response = await fetch('/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        messageEl.style.color = 'lime';
-        messageEl.textContent = 'Вход успешен! Перенаправление...';
-        setTimeout(() => {
-          window.location.href = '{{ url_for("main.index") }}';
-        }, 1500);
-      } else {
-        messageEl.style.color = 'red';
-        messageEl.textContent = data.message;
-      }
-    } catch (error) {
-      messageEl.style.color = 'red';
-      messageEl.textContent = 'Произошла ошибка. Попробуйте снова.';
-    }
-  });
-
   // THREE.js фон
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
