@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FileField
+from wtforms import SelectField, StringField, PasswordField, SubmitField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 class RegistrationForm(FlaskForm):
@@ -34,5 +34,10 @@ class SocialLinksForm(FlaskForm):
 
 class BlogPostForm(FlaskForm):
     title = StringField('Заголовок', validators=[DataRequired(), Length(max=128)])
-    content = StringField('Содержание', validators=[DataRequired()])
+    topic = SelectField("Тема", choices=[
+        ("Обновления", "Обновления"),
+        ("Технологии", "Технологии"),
+        ("События", "События")
+    ], validators=[DataRequired()])
+    content = TextAreaField('Содержание', validators=[DataRequired()])
     submit = SubmitField('Опубликовать')

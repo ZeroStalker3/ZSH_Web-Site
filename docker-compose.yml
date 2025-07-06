@@ -1,0 +1,31 @@
+services:
+  web:
+    build: .
+    container_name: zsh_web
+    command: flask run --host=0.0.0.0 --port=5000
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:root@db:5432/zsh_web
+
+  db:
+    image: postgres:15
+    container_name: zsh_db
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: zsh_web
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

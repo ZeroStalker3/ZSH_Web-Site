@@ -1,10 +1,14 @@
 import os
 from flask import Flask
+from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+
+load_dotenv()
+
 from config import Config
 
 db = SQLAlchemy()

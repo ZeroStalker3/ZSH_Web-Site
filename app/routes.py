@@ -1,13 +1,14 @@
 import os
 import uuid
+from sqlalchemy import func, or_
 from werkzeug.utils import secure_filename
 from flask import Blueprint, current_app, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFError
 from . import csrf
 from werkzeug.security import generate_password_hash, check_password_hash
-from .forms import RegistrationForm, LoginForm, ProfileForm, PasswordChangeForm, SocialLinksForm
-from .models import SocialLinks, User
+from .forms import BlogPostForm, RegistrationForm, LoginForm, ProfileForm, PasswordChangeForm, SocialLinksForm
+from .models import BlogPost, SocialLinks, User
 from . import db, bcrypt
 
 
@@ -25,13 +26,52 @@ def about():
 def games():
     return render_template('games.html')
 
-@main.route('/blog')
+@main.route("/blog")
 def blog():
-    return render_template('blog.html')
+    query = BlogPost.query.join(User)
 
-@main.route('/addpost')
-def add_post():
-    return render_template('addpost.html')
+    # Фильтры
+    search = request.args.get('q', '').strip().lower()
+    topic = request.args.get('topic', '').strip()
+    date = request.args.get('date', '').strip()
+
+    if search:
+        query = query.filter(or_(
+            func.lower(BlogPost.title).like(f"%{search}%"),
+            func.lower(BlogPost.content).like(f"%{search}%")
+        ))
+
+    if topic:
+        query = query.filter(BlogPost.topic == topic)
+
+    if date:
+        try:
+            from datetime import datetime
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
+            query = query.filter(func.date(BlogPost.date_created) == date_obj.date())
+        except ValueError:
+            pass  # некорректная дата — игнорируем
+
+    posts = query.order_by(BlogPost.date_created.desc()).all()
+
+    return render_template("blog.html", posts=posts, search=search, topic=topic, date=date)
+
+@main.route('/create_post', methods=['GET', 'POST'])
+@login_required
+def create_post():
+    form = BlogPostForm()
+    if form.validate_on_submit():
+        post = BlogPost(
+            title=form.title.data,
+            content=form.content.data,
+            topic=form.topic.data,
+            author=current_user
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash("Пост успешно создан!", "success")
+        return redirect(url_for('main.blog'))
+    return render_template('create_post.html', form=form)
 
 @main.errorhandler(404)
 def not_found(error):
