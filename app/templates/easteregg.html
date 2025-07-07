@@ -103,7 +103,7 @@
 
   <h1>🐇 Добро пожаловать в кроличью нору</h1>
   <p>Это скрытая зона ZSH. Ты нашёл глитч.</p>
-  <button onclick="location.href='index.html'">Вернуться в реальность</button>
+  <button onclick="location.href='{{ url_for('main.index') }}'">Вернуться в реальность</button>
 
   <script>
     const canvas = document.getElementById("matrix");
@@ -144,6 +144,13 @@
       resizeCanvas();
       columns = Math.floor(canvas.width / fontSize);
       drops = new Array(columns).fill(1);
+    });
+
+    //Обратно ctrl + shift + x
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'x') {
+        window.location.href = '{{ url_for('main.index') }}';
+      }
     });
   </script>
 </body>

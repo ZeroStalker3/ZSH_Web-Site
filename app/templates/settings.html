@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Настройки — ZSH</title>
+
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <style>
     /* Reset */
@@ -13,8 +17,8 @@
     html, body {
       margin: 0; padding: 0; min-height: 100%;
       font-family: 'Orbitron', sans-serif;
-      background: #0a0a0a;
-      color: #eee;
+      background: var(--bg, #000);
+      color: var(--text, #fff); 
       display: flex;
       flex-direction: column;
       user-select: none;
@@ -22,22 +26,22 @@
     header {
       position: fixed;
       top: 0; left: 0; right: 0;
-      background: rgba(10,10,10,0.85);
+      background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 0 15px #7f5af0bb;
+      box-shadow: 0 0 15px var(--accent-shadow, #7f5af0bb);
       z-index: 10;
       user-select: none;
     }
     header div strong {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       font-size: 1.6rem;
-      text-shadow: 0 0 20px #7f5af0;
+      text-shadow: 0 0 20px var(--accent-glow, #ff00c8);
     }
     nav a {
-      color: #eee;
+      color: var(--text, white);
       margin-left: 1.4rem;
       text-decoration: none;
       font-weight: 600;
@@ -50,7 +54,7 @@
     }
     nav a:hover,
     nav a:focus {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       outline: none;
     }
     nav a:hover::after {
@@ -59,7 +63,7 @@
       left: 0; bottom: -4px;
       width: 100%;
       height: 2px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       border-radius: 2px;
     }
 
@@ -199,147 +203,55 @@
   <header>
     <div><strong>ZSH</strong></div>
     <nav>
-      <a href="index.html">Главная</a>
-      <a href="about.html">О нас</a>
-      <a href="games.html">Игры</a>
-      <a href="blog.html">Блог</a>
-      <a href="login.html">Войти</a>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
+      <a href="{{ url_for('main.themes_customizer') }}" tabindex="4">Темы</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.profile') }}">Профиль</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('main.admin') }}">Админ</a>
+        {% endif %}
+        <a href="{{ url_for('main.logout') }}">Выйти</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Войти</a>
+      {% endif %}
     </nav>
   </header>
 
-  <main role="main" aria-labelledby="pageTitle">
-    <h1 id="pageTitle">Настройки — ZSH</h1>
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <main role="main" aria-labelledby="pageTitle">
+      <h1 id="pageTitle">Настройки — ZSH</h1>
 
-    <section aria-labelledby="notifTitle">
-      <h2 id="notifTitle">Настройки уведомлений</h2>
-      <label><input type="checkbox" id="notifEmailForum" /> Email: новые сообщения на форуме</label>
-      <label><input type="checkbox" id="notifEmailComments" /> Email: ответы на комментарии</label>
-      <label><input type="checkbox" id="notifEmailUpdates" /> Email: обновления игр</label>
-      <label><input type="checkbox" id="notifPushForum" /> Push-уведомления: новые сообщения на форуме</label>
-      <label><input type="checkbox" id="notifPushComments" /> Push-уведомления: ответы на комментарии</label>
-      <label><input type="checkbox" id="notifPushUpdates" /> Push-уведомления: обновления игр</label>
-    </section>
+      <section aria-labelledby="notifTitle">
+        <h2 id="notifTitle">Настройки уведомлений</h2>
+        <label>{{ form.notif_email_forum() }} {{ form.notif_email_forum.label.text }}</label><br>
+        <label>{{ form.notif_email_comments() }} {{ form.notif_email_comments.label.text }}</label><br>
+        <label>{{ form.notif_email_updates() }} {{ form.notif_email_updates.label.text }}</label><br>
+        <label>{{ form.notif_push_forum() }} {{ form.notif_push_forum.label.text }}</label><br>
+        <label>{{ form.notif_push_comments() }} {{ form.notif_push_comments.label.text }}</label><br>
+        <label>{{ form.notif_push_updates() }} {{ form.notif_push_updates.label.text }}</label><br>
+      </section>
 
-    <section aria-labelledby="privacyTitle">
-      <h2 id="privacyTitle">Настройки приватности профиля</h2>
-      <label><input type="radio" name="profilePrivacy" value="public" /> Профиль виден всем</label>
-      <label><input type="radio" name="profilePrivacy" value="friends" /> Видим только для друзей</label>
-      <label><input type="radio" name="profilePrivacy" value="private" /> Профиль закрыт</label>
-    </section>
+      <section aria-labelledby="privacyTitle">
+        <h2 id="privacyTitle">Настройки приватности профиля</h2>
+        {% for subfield in form.profile_privacy %}
+          <label>{{ subfield() }} {{ subfield.label.text }}</label><br>
+        {% endfor %}
+      </section>
 
-    <section aria-labelledby="themeTitle">
-      <h2 id="themeTitle">Тема оформления</h2>
-      <label><input type="radio" name="theme" value="light" /> Светлая</label>
-      <label><input type="radio" name="theme" value="dark" /> Тёмная</label>
-    </section>
+      <section aria-labelledby="themeTitle">
+        <h2 id="themeTitle">Тема оформления</h2>
+        {% for subfield in form.theme %}
+          <label>{{ subfield() }} {{ subfield.label.text }}</label><br>
+        {% endfor %}
+      </section>
 
-    <section aria-labelledby="servicesTitle">
-      <h2 id="servicesTitle">Подключённые сервисы</h2>
-      <ul class="connected-services" id="servicesList">
-        <li>
-          Google аккаунт
-          <button data-service="google" aria-label="Отключить Google аккаунт">Отключить</button>
-        </li>
-        <li>
-          Twitch аккаунт
-          <button data-service="twitch" aria-label="Отключить Twitch аккаунт">Отключить</button>
-        </li>
-        <li>
-          Discord аккаунт
-          <button data-service="discord" aria-label="Отключить Discord аккаунт">Отключить</button>
-        </li>
-      </ul>
-    </section>
+      {{ form.submit(class="btn btn-primary") }}
+    </main>
+  </form>
 
-    <button id="saveSettingsBtn" aria-label="Сохранить настройки">Сохранить настройки</button>
-  </main>
-
-  <script>
-    // Загрузка настроек из localStorage
-    function loadSettings() {
-      const settings = JSON.parse(localStorage.getItem('zshUserSettings')) || {};
-
-      // Уведомления
-      document.getElementById('notifEmailForum').checked = settings.notifEmailForum || false;
-      document.getElementById('notifEmailComments').checked = settings.notifEmailComments || false;
-      document.getElementById('notifEmailUpdates').checked = settings.notifEmailUpdates || false;
-      document.getElementById('notifPushForum').checked = settings.notifPushForum || false;
-      document.getElementById('notifPushComments').checked = settings.notifPushComments || false;
-      document.getElementById('notifPushUpdates').checked = settings.notifPushUpdates || false;
-
-      // Приватность
-      if(settings.profilePrivacy){
-        const privacyRadios = document.getElementsByName('profilePrivacy');
-        for(const radio of privacyRadios) {
-          radio.checked = radio.value === settings.profilePrivacy;
-        }
-      }
-
-      // Тема
-      if(settings.theme){
-        const themeRadios = document.getElementsByName('theme');
-        for(const radio of themeRadios) {
-          radio.checked = radio.value === settings.theme;
-        }
-        applyTheme(settings.theme);
-      }
-    }
-
-    // Сохранение настроек в localStorage
-    function saveSettings() {
-      const settings = {
-        notifEmailForum: document.getElementById('notifEmailForum').checked,
-        notifEmailComments: document.getElementById('notifEmailComments').checked,
-        notifEmailUpdates: document.getElementById('notifEmailUpdates').checked,
-        notifPushForum: document.getElementById('notifPushForum').checked,
-        notifPushComments: document.getElementById('notifPushComments').checked,
-        notifPushUpdates: document.getElementById('notifPushUpdates').checked,
-        profilePrivacy: document.querySelector('input[name="profilePrivacy"]:checked')?.value || null,
-        theme: document.querySelector('input[name="theme"]:checked')?.value || null
-      };
-      localStorage.setItem('zshUserSettings', JSON.stringify(settings));
-      alert('Настройки сохранены!');
-    }
-
-    // Применение темы оформления
-    function applyTheme(theme) {
-      if(theme === 'dark'){
-        document.body.style.backgroundColor = '#0a0a0a';
-        document.body.style.color = '#eee';
-      } else {
-        document.body.style.backgroundColor = '#f5f5f5';
-        document.body.style.color = '#222';
-      }
-    }
-
-    // Кнопка сохранить
-    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-      saveSettings();
-    });
-
-    // Реакция на смену темы сразу
-    const themeRadios = document.querySelectorAll('input[name="theme"]');
-    themeRadios.forEach(radio => {
-      radio.addEventListener('change', e => {
-        applyTheme(e.target.value);
-      });
-    });
-
-    // Отключение сервисов (только UI)
-    const servicesList = document.getElementById('servicesList');
-    servicesList.addEventListener('click', e => {
-      if(e.target.tagName === 'BUTTON'){
-        const service = e.target.dataset.service;
-        if(confirm(`Вы действительно хотите отключить ${service} аккаунт?`)){
-          // Тут может быть реальная логика отключения с сервера
-          e.target.parentElement.remove();
-          alert(`${service} аккаунт отключён.`);
-        }
-      }
-    });
-
-    // Инициализация
-    loadSettings();
-  </script>
 </body>
 </html>

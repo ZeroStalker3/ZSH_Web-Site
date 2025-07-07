@@ -7,8 +7,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFError
 from . import csrf
 from werkzeug.security import generate_password_hash, check_password_hash
-from .forms import BlogPostForm, RegistrationForm, LoginForm, ProfileForm, PasswordChangeForm, SocialLinksForm
-from .models import BlogPost, SocialLinks, User
+from .forms import *
+from .models import *
 from . import db, bcrypt
 
 
@@ -225,9 +225,49 @@ def logout():
     flash('Вы вышли из аккаунта.', 'info')
     return redirect(url_for('main.index'))
     
-@main.route('/settings')
+@main.route('/settings', methods=['GET', 'POST'])
+@login_required
 def settings():
-    return render_template('settings.html')
+    form = SettingsForm()
+
+    if form.validate_on_submit():
+        if not current_user.settings:
+            current_user.settings = UserSettings(user=current_user)
+
+        # Обновляем значения
+        current_user.settings.notif_email_forum = form.notif_email_forum.data
+        current_user.settings.notif_email_comments = form.notif_email_comments.data
+        current_user.settings.notif_email_updates = form.notif_email_updates.data
+        current_user.settings.notif_push_forum = form.notif_push_forum.data
+        current_user.settings.notif_push_comments = form.notif_push_comments.data
+        current_user.settings.notif_push_updates = form.notif_push_updates.data
+        current_user.settings.profile_privacy = form.profile_privacy.data
+        current_user.settings.theme = form.theme.data
+
+        db.session.commit()
+        flash("Настройки обновлены", "success")
+        return redirect(url_for('main.settings'))
+
+    # Заполняем форму текущими данными
+    if current_user.settings:
+        form.notif_email_forum.data = current_user.settings.notif_email_forum
+        form.notif_email_comments.data = current_user.settings.notif_email_comments
+        form.notif_email_updates.data = current_user.settings.notif_email_updates
+        form.notif_push_forum.data = current_user.settings.notif_push_forum
+        form.notif_push_comments.data = current_user.settings.notif_push_comments
+        form.notif_push_updates.data = current_user.settings.notif_push_updates
+        form.profile_privacy.data = current_user.settings.profile_privacy
+        form.theme.data = current_user.settings.theme
+
+    form.theme.data = current_user.settings.theme
+    
+    return render_template('settings.html', form=form)
+
+@main.context_processor
+def inject_theme():
+    if current_user.is_authenticated and current_user.settings:
+        return dict(theme=current_user.settings.theme or 'light')
+    return dict(theme='light')
 
 @main.route('/shop')
 def shop():

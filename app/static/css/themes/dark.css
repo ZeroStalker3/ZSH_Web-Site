@@ -1,0 +1,10 @@
+:root {
+  --bg: #0a0a0a;
+  --text: #eeeeee;
+  --text-secondary: #cccccc;
+  --accent: #7f5af0;
+  --accent-glow: #a085ff;
+  --accent-shadow: #7f5af0aa;
+  --header-bg: rgba(0, 0, 0, 0.85);
+  --footer-text: #999999;
+}

@@ -4,27 +4,31 @@
   <meta charset="UTF-8" />
   <title>Личный кабинет — ZSH</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <style>
     /* Общие стили страницы и шрифты */
     body {
       margin: 0;
       padding: 20px;
-      background: #0a0a0a;
-      color: #eee;
+      background: var(--bg, #000);
+      color: var(--text, #fff); 
       font-family: 'Orbitron', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
     h1 {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       text-align: center;
       font-weight: 700;
       user-select: none;
       margin-bottom: 30px;
       font-size: 2.8rem;
-      text-shadow: 0 0 15px #7f5af0;
+      text-shadow: 0 0 15px var(--accent, #7f5af0);
       animation: glitch 2s infinite;
     }
     @keyframes glitch {
@@ -44,19 +48,19 @@
     }
 
     aside {
-      background: #1a1a1a;
+      background: var(--bg, #1e1e1e);
       border-radius: 12px;
       padding: 25px;
-      box-shadow: 0 0 20px #7f5af0aa;
+      box-shadow: 0 0 20px var(--accent-shadow, #7f5af0aa);
       user-select: none;
     }
     aside h2 {
       font-size: 1.4rem;
       margin-bottom: 20px;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       font-weight: 700;
       text-align: center;
-      text-shadow: 0 0 10px #7f5af0;
+      text-shadow: 0 0 10px var(--accent, #7f5af0);
     }
     aside ul {
       list-style: none;
@@ -67,7 +71,7 @@
       padding: 12px 15px;
       margin-bottom: 12px;
       border-radius: 8px;
-      color: #999;
+      color: var(--footer-text, #999);
       font-weight: 600;
       cursor: pointer;
       transition: background 0.3s, color 0.3s;
@@ -75,19 +79,19 @@
     }
     aside li:hover,
     aside li.active {
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       color: #0a0a0a;
       font-weight: 700;
-      box-shadow: 0 0 10px #7f5af0bb;
+      box-shadow: 0 0 10px var(--accent-shadow,#7f5af0bb);
       outline: none;
     }
 
     .content {
-      background: #1e1e1e;
-      border-radius: 12px;
+      background: var(--bg, #1e1e1e);
+      border-radius: 12px; 
       padding: 30px;
-      box-shadow: 0 0 25px #7f5af0bb;
-      color: #ddd;
+      box-shadow: 0 0 25px var(--accent-shadow, #7f5af0aa);
+      color: var(--text, #ddd);
       user-select: none;
     }
 
@@ -101,10 +105,10 @@
     .content-section h2 {
       margin-top: 0;
       margin-bottom: 25px;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       font-weight: 700;
       font-size: 2rem;
-      text-shadow: 0 0 15px #7f5af0;
+      text-shadow: 0 0 15px var(--accent, #7f5af0);
       user-select: none;
     }
 
@@ -132,8 +136,8 @@
       user-select: text;
     }
     input:focus, textarea:focus, select:focus {
-      outline: 2px solid #7f5af0;
-      background: #1a1a1a;
+      outline: 2px solid var(--accent, #7f5af0);
+      background: var(--bg, #1e1e1e);
     }
     textarea {
       min-height: 120px;
@@ -142,8 +146,8 @@
 
     .btn {
       display: inline-block;
-      background: #7f5af0;
-      color: #0a0a0a;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, #1e1e1e);
       padding: 14px 28px;
       font-weight: 700;
       font-size: 1.1rem;
@@ -152,13 +156,13 @@
       cursor: pointer;
       transition: background-color 0.3s ease;
       user-select: none;
-      box-shadow: 0 0 10px #7f5af0bb;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
     .btn:hover,
     .btn:focus {
-      background: #a37aff;
+      background: var(--accent-glow, #7f5af0);
       outline: none;
-      box-shadow: 0 0 20px #a37affdd;
+      box-shadow: 0 0 20px var(--accent-shadow, #7f5af0aa);
     }
 
     .avatar {
@@ -167,8 +171,8 @@
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 25px;
-      border: 3px solid #7f5af0;
-      box-shadow: 0 0 15px #7f5af0aa;
+      border: 3px solid var(--accent, #7f5af0);
+      box-shadow: 0 0 15px var(--accent-shadow, #7f5af0aa);
       user-select: none;
       display: block;
       margin-left: auto;
@@ -190,37 +194,39 @@
       display: inline-block;
       margin-right: 14px;
       padding: 10px 16px;
-      background: #2d2d2d;
+      background: var(--bg, #2d2d2d);
       border-radius: 12px;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       font-weight: 700;
       text-decoration: none;
-      box-shadow: 0 0 10px #7f5af0bb;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
       user-select: none;
       transition: background-color 0.3s ease, color 0.3s ease;
     }
     .social-btns a:hover,
     .social-btns a:focus {
-      background: #7f5af0;
-      color: #0a0a0a;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, #0a0a0a);
       outline: none;
-      box-shadow: 0 0 20px #a37affdd;
+      box-shadow: 0 0 20px var(--accent-shadow, #7f5af0aa);
     }
     
-    /* Фиксированный хедер */
-    html, body {
-      margin: 0; padding: 0; height: 100%;
+  html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: 'Orbitron', sans-serif;
       overflow-x: hidden;
-      background: black;
-      color: white;
+      background: var(--bg, #000); /* fallback — чёрный */
+      color: var(--text, #fff);     /* fallback — белый */
     }
 
+    /* Фиксированный хедер */
     header {
       box-sizing: border-box;
       top: 0; left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
       z-index: 100;
       display: flex;
@@ -228,28 +234,29 @@
       align-items: center;
       transition: transform 1.5s ease, rotate 1.5s ease;
       transform-origin: top center;
-      box-shadow: 0 0 10px #7f5af0aa;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
 
     nav a {
-      color: white;
+      color: var(--text, white);
       margin: 0 1rem;
       text-decoration: none;
       position: relative;
       user-select: none;
       transition: color 0.3s ease;
     }
+
     nav a:hover::after {
       content: '';
       position: absolute;
       width: 100%;
       height: 2px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       bottom: -4px;
       left: 0;
     }
     nav a:hover {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
     }
 
     .social-icon img {

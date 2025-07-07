@@ -4,13 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Связь с нами — ZSH</title>
+  
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <style>
     body {
       margin: 0;
-      background: #0a0a0a;
-      color: white;
+      background: var( --bg, #0a0a0a);
+      color: var(--text, white);
       font-family: 'Orbitron', sans-serif;
       overflow: hidden;
     }
@@ -24,42 +28,43 @@
       z-index: 0;
     }
 
+    /* Фиксированный хедер */
     header {
       box-sizing: border-box;
       top: 0; left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
       z-index: 100;
+      margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       transition: transform 1.5s ease, rotate 1.5s ease;
       transform-origin: top center;
-      box-shadow: 0 0 10px #7f5af0aa;
-      margin: 0 0 15px 0;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
 
     nav a {
-      color: white;
+      color: var(--text, white);
       margin: 0 1rem;
       text-decoration: none;
       position: relative;
       user-select: none;
       transition: color 0.3s ease;
     }
+
     nav a:hover::after {
       content: '';
       position: absolute;
       width: 100%;
       height: 2px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       bottom: -4px;
       left: 0;
     }
-
     nav a:hover {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
     }
 
     main {
@@ -70,12 +75,12 @@
       margin: auto;
       background: rgba(0, 0, 0, 0.6);
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(127, 90, 240, 0.2);
+      box-shadow: 0 0 20px var(--accent-shadow, #7f5af0aa);
     }
 
     h1 {
       text-align: center;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       font-size: 2.7rem;
       margin-bottom: 0.5rem;
       animation: glitch 1.5s infinite;
@@ -92,7 +97,7 @@
 
     p.subtitle {
       text-align: center;
-      color: #ccc;
+      color: var (--text-secondary, #ccc);
       font-size: 1.1rem;
       margin-bottom: 2rem;
     }
@@ -113,7 +118,7 @@
 
     label {
       font-weight: bold;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       display: block;
       margin-bottom: 0.5rem;
     }
@@ -123,7 +128,7 @@
       padding: 0.7rem;
       border-radius: 6px;
       border: none;
-      background: #2a2a2a;
+      background: var(--bg, #7f5af0);
       color: white;
       font-family: 'Orbitron', sans-serif;
       font-size: 1rem;
@@ -131,7 +136,7 @@
     }
 
     button {
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       border: none;
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
@@ -143,7 +148,7 @@
     }
 
     button:hover {
-      background: #a78af0;
+      background: var(--accent-glow, #7f5af0);
     }
 
     .contact-info h2 {
@@ -161,7 +166,7 @@
     }
 
     .contact-info a {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       text-decoration: none;
     }
 

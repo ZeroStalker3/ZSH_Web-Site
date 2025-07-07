@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Админка ZSH</title>
+
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; }
@@ -11,8 +15,8 @@
     body {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
-      background: #0a0a0a;
-      color: white;
+      background: var(--bg, #000); /* fallback — чёрный */
+      color: var(--text, #fff);     /* fallback — белый */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -21,7 +25,7 @@
     }
 
     h1 {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       margin-bottom: 1rem;
       text-align: center;
       animation: glitch 1.2s infinite;
@@ -39,10 +43,10 @@
     .box {
       width: 100%;
       max-width: 420px;
-      background: #111;
+      background: var(--bg, #000);
       padding: 2rem;
       border-radius: 12px;
-      box-shadow: 0 0 30px rgba(127, 90, 240, 0.4);
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
       text-align: center;
     }
 
@@ -50,8 +54,8 @@
       width: 100%;
       padding: 0.8rem;
       border: none;
-      background: #7f5af0;
-      color: black;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, black);
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
@@ -76,17 +80,17 @@
       width: auto;
       padding: 0.6rem 1.2rem;
       font-size: 0.9rem;
-      color: white;
+      color: var(--text, white);
       background: transparent;
-      border: 1.5px solid #7f5af0;
+      border: 1.5px solid var(--accent, #7f5af0);
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.3s, color 0.3s;
     }
 
     .page-controls button:hover {
-      background: #7f5af0;
-      color: black;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, black);
     }
 
     @media (max-width: 500px) {
@@ -97,24 +101,24 @@
       max-width: 800px;
       margin: 60px auto;
       padding: 30px 40px;
-      background: #1a1a1a;
+      background: var(--bg, #1a1a1a);
       border-radius: 16px;
-      box-shadow: 0 0 25px #7f5af0bb;
+      box-shadow: 0 0 25px var(--accent, #7f5af0);
       font-family: 'Orbitron', sans-serif;
-      color: #eee;
+      color: var(--text, #eee);
       text-align: center;
     }
 
     .admin-box h1 {
       font-size: 2.5rem;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       margin-bottom: 20px;
-      text-shadow: 0 0 15px #7f5af0;
+      text-shadow: 0 0 15px var(--accent, #7f5af0);
     }
 
     .welcome-msg {
       font-size: 1.1rem;
-      color: #aaa;
+      color: var(--text, #aaa);
       margin-bottom: 25px;
     }
 
@@ -123,8 +127,8 @@
     }
 
     .btn {
-      background: #7f5af0;
-      color: #0a0a0a;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, #0a0a0a);
       padding: 12px 26px;
       font-weight: 700;
       font-size: 1rem;
@@ -133,12 +137,12 @@
       text-decoration: none;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      box-shadow: 0 0 12px #7f5af0aa;
+      box-shadow: 0 0 12px var(--accent, #7f5af0);
     }
 
     .btn:hover {
-      background: #a37aff;
-      box-shadow: 0 0 20px #a37affcc;
+      background: var(--accent-hover, #a37aff);
+      box-shadow: 0 0 20px var(--accent-hover, #a37affcc);
     }
 
     .page-controls {
@@ -150,8 +154,8 @@
 
     .nav-btn {
       background: transparent;
-      border: 2px solid #7f5af0;
-      color: #7f5af0;
+      border: 2px solid var(--accent, #7f5af0);
+      color: var(--accent, #7f5af0);
       padding: 10px 20px;
       font-size: 1rem;
       border-radius: 10px;
@@ -161,9 +165,9 @@
     }
 
     .nav-btn:hover {
-      background: #7f5af0;
-      color: #0a0a0a;
-      box-shadow: 0 0 12px #7f5af0cc;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, #0a0a0a);
+      box-shadow: 0 0 12px var(--accent, #7f5af0cc);
     }
 
     .admin-content {

@@ -14,13 +14,18 @@
   <!-- Orbitron шрифт -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
 
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%;
+  html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: 'Orbitron', sans-serif;
       overflow-x: hidden;
-      background: black;
-      color: white;
+      background: var(--bg, #000); /* fallback — чёрный */
+      color: var(--text, #fff);     /* fallback — белый */
     }
 
     /* Фиксированный хедер */
@@ -28,7 +33,7 @@
       box-sizing: border-box;
       top: 0; left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
       z-index: 100;
       display: flex;
@@ -36,28 +41,29 @@
       align-items: center;
       transition: transform 1.5s ease, rotate 1.5s ease;
       transform-origin: top center;
-      box-shadow: 0 0 10px #7f5af0aa;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
 
     nav a {
-      color: white;
+      color: var(--text, white);
       margin: 0 1rem;
       text-decoration: none;
       position: relative;
       user-select: none;
       transition: color 0.3s ease;
     }
+
     nav a:hover::after {
       content: '';
       position: absolute;
       width: 100%;
       height: 2px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       bottom: -4px;
       left: 0;
     }
     nav a:hover {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
     }
 
     /* Видео фон */
@@ -86,8 +92,8 @@
     .hero h1 {
       font-size: clamp(2.5rem, 8vw, 4rem);
       text-shadow:
-        2px 2px 5px #7f5af0,
-        -2px -2px 5px #ff00c8;
+        2px 2px 5px var(--accent, #7f5af0),
+        -2px -2px 5px var(--accent-glow, #ff00c8);
       margin: 0;
       animation: glitch 2s infinite ease-in-out;
       user-select: none;
@@ -97,7 +103,7 @@
     .hero p {
       font-size: clamp(1rem, 2.5vw, 1.3rem);
       max-width: 600px;
-      color: #ccc;
+      color: var(--text-secondary, #ccc);
       margin: 1rem 0 2rem;
       line-height: 1.5;
     }
@@ -105,9 +111,9 @@
     /* Кнопка входа */
     .enter-btn {
       background: transparent;
-      border: 2px solid #7f5af0;
+      border: 2px solid var(--accent, #7f5af0);
       padding: 1rem 2rem;
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       font-size: 1rem;
       text-transform: uppercase;
       cursor: pointer;
@@ -120,8 +126,8 @@
 
     .enter-btn:hover,
     .enter-btn:focus {
-      background: #7f5af0;
-      color: black;
+      background: var(--accent, #7f5af0);
+      color: var(--bg, black);
       outline: none;
     }
 
@@ -131,7 +137,7 @@
       width: 100%;
       text-align: center;
       padding: 1rem;
-      color: #999;
+      color: var(--footer-text, #999);
       font-size: 0.9rem;
       user-select: none;
       margin-top: 2rem;
@@ -140,26 +146,24 @@
     /* Анимация glitch для заголовка */
     @keyframes glitch {
       0% {
-        text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8;
+        text-shadow: 2px 2px var(--accent), -2px -2px var(--accent-glow);
       }
       20% {
-        text-shadow: -2px -2px #7f5af0, 2px 2px #ff00c8;
+        text-shadow: -2px -2px var(--accent), 2px 2px var(--accent-glow);
       }
       40% {
-        text-shadow: 2px -2px #7f5af0, -2px 2px #ff00c8;
+        text-shadow: 2px -2px var(--accent), -2px 2px var(--accent-glow);
       }
       60% {
-        text-shadow: -2px 2px #7f5af0, 2px -2px #ff00c8;
+        text-shadow: -2px 2px var(--accent), 2px -2px var(--accent-glow);
       }
       80% {
-        text-shadow: 2px 2px #7f5af0, -2px -2px #ff00c8;
+        text-shadow: 2px 2px var(--accent), -2px -2px var(--accent-glow);
       }
       100% {
-        text-shadow: 0 0 20px #7f5af0;
+        text-shadow: 0 0 20px var(--accent);
       }
     }
-
-    
 
     /* Адаптивность */
     @media (max-width: 600px) {
@@ -184,8 +188,7 @@
     }
   </style>
 </head>
-<body>
-
+<body  class="{{ theme }}">
 <header id="header">
   <div><strong>ZSH</strong></div>
     <nav>
@@ -231,7 +234,7 @@
     // Скрытая пасхалка: при нажатии Ctrl+Shift+Z переходим на пасхалку
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') {
-        window.location.href = 'easteregg.html';
+        window.location.href = '{{ url_for('main.easteregg') }}';
       }
     });
   </script>

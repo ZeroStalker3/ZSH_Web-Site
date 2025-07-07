@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, PasswordField, SubmitField, FileField, TextAreaField
+from wtforms import BooleanField, RadioField, SelectField, StringField, PasswordField, SubmitField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
 class RegistrationForm(FlaskForm):
@@ -41,3 +41,29 @@ class BlogPostForm(FlaskForm):
     ], validators=[DataRequired()])
     content = TextAreaField('Содержание', validators=[DataRequired()])
     submit = SubmitField('Опубликовать')
+
+class SettingsForm(FlaskForm):
+    # Уведомления
+    notif_email_forum = BooleanField("Email: новые сообщения на форуме")
+    notif_email_comments = BooleanField("Email: ответы на комментарии")
+    notif_email_updates = BooleanField("Email: обновления игр")
+    notif_push_forum = BooleanField("Push-уведомления: новые сообщения на форуме")
+    notif_push_comments = BooleanField("Push-уведомления: ответы на комментарии")
+    notif_push_updates = BooleanField("Push-уведомления: обновления игр")
+
+    # Приватность
+    profile_privacy = RadioField("Приватность", choices=[
+        ("public", "Профиль виден всем"),
+        ("friends", "Виден только для друзей"),
+        ("private", "Профиль закрыт")
+    ], validators=[DataRequired()])
+
+    # Тема
+    theme = RadioField(choices=[
+        ('light', 'Светлая'),
+        ('dark', 'Тёмная'),
+        ('neon', 'Неоновая'),
+        ('cyber', 'Киберпанк')
+    ], validators=[DataRequired()])
+
+    submit = SubmitField("Сохранить настройки")
