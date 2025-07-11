@@ -143,54 +143,95 @@
 
 <header>
   <div><strong>ZSH</strong></div>
-  <nav>
-    <a href="index.html">Главная</a>
-    <a href="about.html">О нас</a>
-    <a href="games.html">Игры</a>
-    <a href="blog.html">Блог</a>
-    <a href="Friends.html">Друзья</a>
-    <a href="login.html">Войти</a>
-  </nav>
+    <nav>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
+      <a href="{{ url_for('main.roadmap') }}" tabindex="4">Карта развития</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.profile') }}">Профиль</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('main.admin') }}">Админ</a>
+        {% endif %}
+        <a href="{{ url_for('main.logout') }}">Выйти</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Войти</a>
+      {% endif %}
+    </nav>
 </header>
 
 <main>
   <h1>👥 Список друзей</h1>
 
-  <div class="friend">
-    <div class="friend-info">
-      <span class="friend-name">Алексей</span>
-      <span class="friend-status">🟢 Онлайн</span>
+  {% if friends %}
+    <h2> Друзья </h2>
+    {% for f in friends %}
+    {% set user = f.requester if f.receiver_id == current_user.id else f.receiver %}
+    <div class="friend" data-username="{{ friend.username }}">
+      <div class="friend-info">
+        <span class="friend-name">{{ user.username }}</span>
+        <span class="friend-status">Статус: Друг</span>
+      </div>
+      <div class="friend-actions">
+        <form method="post" action="{{ url_for('main.remove_friend', user_id=user.id) }}">
+          <button type="submit">Удалить</button>
+        </form>
+      </div>
     </div>
-    <div class="friend-actions">
-      <button>Сообщение</button>
-      <button>Удалить</button>
-    </div>
-  </div>
+    {% endfor %}
+  {% endif %}
 
-  <div class="friend">
-    <div class="friend-info">
-      <span class="friend-name">Мария</span>
-      <span class="friend-status">🔴 Оффлайн</span>
+  {% if incoming %}
+    <h2>Входящие заявки</h2>
+    {% for f in incoming %}
+    <div class="friend" data-username="{{ friend.username }}">
+      <div class="friend-info">
+        <span class="friend-name">{{ f.requester.username }}</span>
+        <span class="friend-status">Хочет добавить вас</span>
+      </div>
+      <div class="friend-actions">
+        <form method="post" action="{{ url_for('main.accept_friend_request', friendship_id=f.id) }}">
+          <button type="submit">Принять</button>
+        </form>
+        <form method="post" action="{{ url_for('main.decline_friend_request', friendship_id=f.id) }}">
+          <button type="submit">Отклонить</button>
+        </form>
+      </div>
     </div>
-    <div class="friend-actions">
-      <button>Сообщение</button>
-      <button>Удалить</button>
-    </div>
-  </div>
+    {% endfor %}
+  {% endif %}
 
-  <div class="friend">
-    <div class="friend-info">
-      <span class="friend-name">Иван</span>
-      <span class="friend-status">🟡 В игре</span>
+  {% if outgoing %}
+    <h2>Отправленные заявки</h2>
+    {% for f in outgoing %}
+    <div class="friend" data-username="{{ friend.username }}">
+      <div class="friend-info">
+        <span class="friend-name">{{ f.receiver.username }}</span>
+        <span class="friend-status">Заявка отправлена</span>
+      </div>
+      <div class="friend-actions">
+        <form method="post" action="{{ url_for('main.remove_friend', user_id=f.receiver.id) }}">
+          <button type="submit">Отменить</button>
+        </form>
+      </div>
     </div>
-    <div class="friend-actions">
-      <button>Сообщение</button>
-      <button>Удалить</button>
-    </div>
-  </div>
+    {% endfor %}
+  {% endif %}
 </main>
 
 <script>
+  setInterval(() => {
+    fetch('/api/friends/status')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(({ username, status }) => {
+          const el = document.querySelector(`[data-username="${username}"] .friend-status`);
+          if (el) el.innerText = status;
+        });
+      });
+  }, 10000); // обновление каждые 10 сек
+
   // WebGL фон
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);

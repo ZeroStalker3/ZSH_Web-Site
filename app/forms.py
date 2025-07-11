@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, RadioField, SelectField, StringField, PasswordField, SubmitField, FileField, TextAreaField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional
 
 class RegistrationForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired(), Length(min=3, max=64)])
@@ -34,13 +34,26 @@ class SocialLinksForm(FlaskForm):
 
 class BlogPostForm(FlaskForm):
     title = StringField('Заголовок', validators=[DataRequired(), Length(max=128)])
-    topic = SelectField("Тема", choices=[
+    topic = SelectField("Категория", choices=[
         ("Обновления", "Обновления"),
         ("Технологии", "Технологии"),
         ("События", "События")
     ], validators=[DataRequired()])
+
+    roadmap_key = SelectField("Этап Roadmap (опционально)", choices=[
+        ("", "— не связано —"),
+        ("site_beta", "📦 Бета-версия сайта"),
+        ("ai_playground", "🧠 AI Playground + визуализация"),
+        ("game_portal", "🎮 Игровой портал и WebGL-галерея"),
+        ("interactive_blog", "💬 Интерактивный блог + Easter Eggs"),
+        ("cms_modular", "⚙️ CMS и модульная архитектура"),
+        ("mini_game", "🚀 Релиз первой мини-игры"),
+        ("launcher_pwa", "🌌 Лаунчер и PWA-функции"),
+    ], validators=[Optional()])
+
     content = TextAreaField('Содержание', validators=[DataRequired()])
     submit = SubmitField('Опубликовать')
+
 
 class SettingsForm(FlaskForm):
     # Уведомления

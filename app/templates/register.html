@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>Регистрация — ZSH</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
   <style>
@@ -17,8 +21,8 @@
       padding: 0;
       height: 100%;
       font-family: 'Orbitron', sans-serif;
-      background: #0a0a0a;
-      color: #eee;
+      background: var(--bg, #000); /* fallback — чёрный */
+      color: var(--text, #fff);     /* fallback — белый */
       overflow-x: hidden;
       overflow-y: auto;
       display: flex;
@@ -26,11 +30,12 @@
       min-height: 100vh;
     }
 
-    /* Шапка */
+    /* Фиксированный хедер */
     header {
+      box-sizing: border-box;
       top: 0; left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
       z-index: 100;
       display: flex;
@@ -38,28 +43,29 @@
       align-items: center;
       transition: transform 1.5s ease, rotate 1.5s ease;
       transform-origin: top center;
-      box-shadow: 0 0 10px #7f5af0aa;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
 
     nav a {
-      color: white;
+      color: var(--text, white);
       margin: 0 1rem;
       text-decoration: none;
       position: relative;
       user-select: none;
       transition: color 0.3s ease;
     }
+
     nav a:hover::after {
       content: '';
       position: absolute;
       width: 100%;
       height: 2px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       bottom: -4px;
       left: 0;
     }
     nav a:hover {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
     }
 
     /* Видео фон */
@@ -82,18 +88,18 @@
       width: 90%;
       margin: 120px auto 60px; /* чтобы не заезжать под шапку */
       border-radius: 14px;
-      box-shadow: 0 0 30px #7f5af0cc;
+      box-shadow: 0 0 30px var(--accent-shadow, #7f5af0cc);
       padding: 2.5rem 2rem 2.5rem 2rem;
       text-align: center;
       user-select: none;
     }
 
     h1 {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       margin-bottom: 1.5rem;
       font-size: 2.8rem;
       font-weight: 700;
-      text-shadow: 0 0 20px #7f5af0;
+      text-shadow: 0 0 20px var(--accent, #7f5af0);
       animation: glitch 2s infinite;
       user-select: none;
     }
@@ -120,37 +126,37 @@
       border-radius: 10px;
       border: none;
       font-size: 1.1rem;
-      background: #121212;
-      color: #eee;
+      background: var(--bg, #000); /* fallback — чёрный */
+      color: var(--text, #fff);     /* fallback — белый */
       box-sizing: border-box;
       transition: background-color 0.3s ease;
       user-select: text;
     }
     input:focus {
-      outline: 2px solid #7f5af0;
-      background: #1a1a1a;
+      outline: 2px solid var(--accent, #7f5af0);
+      background: var(--bg-focus, #1a1a1a);
     }
 
     button {
       width: 100%;
       margin-top: 1.8rem;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       border: none;
       padding: 0.9rem;
       border-radius: 14px;
       font-weight: 700;
-      color: #0a0a0a;
+      color: var(--text, #0a0a0a);
       font-size: 1.1rem;
       cursor: pointer;
       transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      box-shadow: 0 0 15px #7f5af0bb;
+      box-shadow: 0 0 15px var(--accent-shadow, #7f5af0bb);
       user-select: none;
     }
     button:hover,
     button:focus {
-      background: #a37aff;
+      background: var(--accent-hover, #a37aff);
       outline: none;
-      box-shadow: 0 0 30px #a37affdd;
+      box-shadow: 0 0 30px var(--accent-hover, #a37affdd);
     }
 
     .message {
@@ -180,10 +186,18 @@
     <nav>
       <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
       <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
-      <a href="{{ url_for('main.games') }}" tabindex="3">Игры</a>
-      <a href="{{ url_for('main.blog') }}" tabindex="4">Блог</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
+      <a href="{{ url_for('main.roadmap') }}" tabindex="4">Карта развития</a>
       <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
-      <a href="{{ url_for('main.login') }}" tabindex="6">Войти</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.profile') }}">Профиль</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('main.admin') }}">Админ</a>
+        {% endif %}
+        <a href="{{ url_for('main.logout') }}">Выйти</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Войти</a>
+      {% endif %}
     </nav>
   </header>
 

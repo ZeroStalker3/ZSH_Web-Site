@@ -23,48 +23,43 @@
       flex-direction: column;
       user-select: none;
     }
+
+    /* Фиксированный хедер */
     header {
-      position: fixed;
-      top: 0; left: 0; right: 0;
+      box-sizing: border-box;
+      top: 0; left: 0;
+      width: 100%;
       background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
+      z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 0 15px var(--accent-shadow, #7f5af0bb);
-      z-index: 10;
-      user-select: none;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
-    header div strong {
-      color: var(--accent, #7f5af0);
-      font-size: 1.6rem;
-      text-shadow: 0 0 20px var(--accent-glow, #ff00c8);
-    }
+
     nav a {
       color: var(--text, white);
-      margin-left: 1.4rem;
+      margin: 0 1rem;
       text-decoration: none;
-      font-weight: 600;
       position: relative;
-      transition: color 0.3s ease;
       user-select: none;
+      transition: color 0.3s ease;
     }
-    nav a:first-child {
-      margin-left: 0;
-    }
-    nav a:hover,
-    nav a:focus {
-      color: var(--accent, #7f5af0);
-      outline: none;
-    }
+
     nav a:hover::after {
       content: '';
       position: absolute;
-      left: 0; bottom: -4px;
       width: 100%;
       height: 2px;
       background: var(--accent, #7f5af0);
-      border-radius: 2px;
+      bottom: -4px;
+      left: 0;
+    }
+    nav a:hover {
+      color: var(--accent, #7f5af0);
     }
 
     main {
@@ -76,7 +71,7 @@
     }
 
     h1 {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
       margin-bottom: 2rem;
       user-select: none;
     }
@@ -86,7 +81,7 @@
       padding: 20px 24px;
       border-radius: 12px;
       margin-bottom: 32px;
-      box-shadow: 0 0 15px #7f5af0bb;
+      box-shadow: 0 0 15px var(--accent-shadow, #7f5af0bb);
       transition: background-color 0.3s, box-shadow 0.3s;
       user-select: none;
     }
@@ -94,7 +89,7 @@
       margin-top: 0;
       margin-bottom: 20px;
       color: #00aaff;
-      border-bottom: 2px solid #7f5af0;
+      border-bottom: 2px solid var(--accent, #7f5af0);
       padding-bottom: 6px;
       user-select: none;
     }
@@ -111,7 +106,7 @@
       transition: color 0.3s;
     }
     label:hover {
-      color: #7f5af0;
+      color: var(--accent, #7f5af0);
     }
 
     input[type="checkbox"],
@@ -120,18 +115,18 @@
       width: 22px;
       height: 22px;
       cursor: pointer;
-      accent-color: #7f5af0;
+      accent-color: var(--accent, #7f5af0);
       user-select: none;
       transition: accent-color 0.3s;
     }
     input[type="checkbox"]:hover,
     input[type="radio"]:hover {
-      accent-color: #a37aff;
+      accent-color: var(--accent-hover, #a37aff);
     }
 
     button {
       padding: 15px 36px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       color: #0a0a0a;
       font-weight: 700;
       border: none;
@@ -142,13 +137,13 @@
       display: block;
       margin: 0 auto 40px;
       user-select: none;
-      box-shadow: 0 0 18px #7f5af0cc;
+      box-shadow: 0 0 18px var(--accent-shadow, #7f5af0cc);
     }
     button:hover,
     button:focus {
-      background: #a37aff;
+      background: var(--accent-hover, #a37aff);
       outline: none;
-      box-shadow: 0 0 30px #a37affdd;
+      box-shadow: 0 0 30px var(--accent-hover, #a37affdd);
     }
 
     .connected-services {
@@ -158,16 +153,16 @@
     }
     .connected-services li {
       padding: 14px 0;
-      border-bottom: 1px solid #7f5af0;
+      border-bottom: 1px solid var(--accent, #7f5af0);
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: 600;
-      color: #aad8ff;
+      color: var(--text, #aad8ff);
       user-select: none;
     }
     .connected-services button {
-      background: #d9534f;
+      background: var(--danger, #d9534f);
       font-weight: 700;
       padding: 7px 14px;
       font-size: 1rem;
@@ -180,8 +175,8 @@
       box-shadow: 0 0 10px #d9534fcc;
     }
     .connected-services button:hover {
-      background: #b52b27;
-      box-shadow: 0 0 16px #b52b27cc;
+      background: var(--danger-hover, #b52b27);
+      box-shadow: 0 0 16px var(--danger-hover, #b52b27cc);
     }
 
     @media (max-width: 480px) {
@@ -197,6 +192,29 @@
         font-size: 1.1rem;
       }
     }
+
+    input[type="submit"] {
+      padding: 15px 36px;
+      background: var(--accent, #7f5af0);
+      color: #0a0a0a;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1.15rem;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      display: block;
+      margin: 0 auto 40px;
+      user-select: none;
+      box-shadow: 0 0 18px var(--accent-shadow, #7f5af0cc);
+    }
+
+    input[type="submit"]:hover,
+    input[type="submit"]:focus {
+      background: var(--accent-hover, #a37aff);
+      outline: none;
+      box-shadow: 0 0 30px var(--accent-hover, #a37affdd);
+    }
   </style>
 </head>
 <body>
@@ -206,7 +224,7 @@
       <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
       <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
       <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
-      <a href="{{ url_for('main.themes_customizer') }}" tabindex="4">Темы</a>
+      <a href="{{ url_for('main.roadmap') }}" tabindex="4">Карта развития</a>
       <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
       {% if current_user.is_authenticated %}
         <a href="{{ url_for('main.profile') }}">Профиль</a>

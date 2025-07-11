@@ -2,7 +2,7 @@ import os
 import uuid
 from sqlalchemy import func, or_
 from werkzeug.utils import secure_filename
-from flask import Blueprint, current_app, render_template, redirect, url_for, flash, request
+from flask import Blueprint, current_app, jsonify, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_wtf.csrf import CSRFError
 from . import csrf
@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import *
 from .models import *
 from . import db, bcrypt
+from app import models
 
 
 main = Blueprint('main', __name__)
@@ -33,6 +34,7 @@ def blog():
     # Фильтры
     search = request.args.get('q', '').strip().lower()
     topic = request.args.get('topic', '').strip()
+    roadmap_key = request.args.get('roadmap_key', '').strip()
     date = request.args.get('date', '').strip()
 
     if search:
@@ -44,17 +46,20 @@ def blog():
     if topic:
         query = query.filter(BlogPost.topic == topic)
 
+    if roadmap_key:
+        query = query.filter(BlogPost.roadmap_key == roadmap_key)
+
     if date:
         try:
             from datetime import datetime
             date_obj = datetime.strptime(date, '%Y-%m-%d')
             query = query.filter(func.date(BlogPost.date_created) == date_obj.date())
         except ValueError:
-            pass  # некорректная дата — игнорируем
+            pass  
 
     posts = query.order_by(BlogPost.date_created.desc()).all()
 
-    return render_template("blog.html", posts=posts, search=search, topic=topic, date=date)
+    return render_template("blog.html", posts=posts, search=search, topic=topic, roadmap_key=roadmap_key, date=date)
 
 @main.route('/create_post', methods=['GET', 'POST'])
 @login_required
@@ -65,12 +70,25 @@ def create_post():
             title=form.title.data,
             content=form.content.data,
             topic=form.topic.data,
+            roadmap_key=form.roadmap_key.data or None,
             author=current_user
         )
         db.session.add(post)
+
+        if form.roadmap_key.data:
+            existing_item = RoadmapItem.query.filter_by(roadmap_key=form.roadmap_key.data).first()
+            if not existing_item:
+                new_item = RoadmapItem(
+                    title=form.title.data,
+                    roadmap_key=form.roadmap_key.data,
+                    goal_posts=11 
+                )
+                db.session.add(new_item)
+
         db.session.commit()
         flash("Пост успешно создан!", "success")
         return redirect(url_for('main.blog'))
+
     return render_template('create_post.html', form=form)
 
 @main.errorhandler(404)
@@ -266,8 +284,8 @@ def settings():
 @main.context_processor
 def inject_theme():
     if current_user.is_authenticated and current_user.settings:
-        return dict(theme=current_user.settings.theme or 'light')
-    return dict(theme='light')
+        return dict(theme=current_user.settings.theme or 'dark')
+    return dict(theme='dark')
 
 @main.route('/shop')
 def shop():
@@ -300,3 +318,121 @@ def admin():
         flash('Доступ запрещён', 'danger')
         return redirect(url_for('main.index'))
     return render_template('admin.html')
+
+@main.route('/roadmap')
+def roadmap():
+    roadmap_items = RoadmapItem.query.all()
+    progress_data = {}
+
+    for item in roadmap_items:
+        count = BlogPost.query.filter_by(roadmap_key=item.roadmap_key).count()
+        progress = min(int((count / item.goal_posts) * 100), 100) if item.goal_posts > 0 else 0
+        print(f"Roadmap Key: {item.roadmap_key}, Count: {count}, Goal: {item.goal_posts}, Progress: {progress}")
+
+        progress_data[item.roadmap_key] = {
+            "label": item.title,
+            "progress": progress
+        }
+
+    return render_template('roadmap.html', progress_data=progress_data)
+
+@main.route("/friends/request/<int:user_id>", methods=['POST'])
+@login_required
+def send_friend_request(user_id):
+    if user_id == current_user.id:
+        flash("Нельзя добавить себя в друзья", "warning")
+        return redirect(request.referrer or url_for('main.index'))
+
+    existing = Friendship.query.filter_by(
+        requester_id=current_user.id,
+        receiver_id=user_id
+    ).first()
+    if existing:
+        flash("Заявка уже отправлена", "info")
+        return redirect(request.referrer or url_for('main.index'))
+
+    new_request = Friendship(requester_id=current_user.id, receiver_id=user_id, status='pending')
+    db.session.add(new_request)
+    db.session.commit()
+    flash("Заявка отправлена", "success")
+    return redirect(request.referrer or url_for('main.index'))
+
+
+@main.route("/friends/accept/<int:friendship_id>", methods=['POST'])
+@login_required
+def accept_friend_request(friendship_id):
+    fs = Friendship.query.get_or_404(friendship_id)
+    if fs.receiver_id != current_user.id:
+        flash("Вы не можете подтвердить эту заявку", "danger")
+        return redirect(url_for('main.friends'))
+
+    fs.status = 'accepted'
+    db.session.commit()
+    flash("Заявка принята", "success")
+    return redirect(url_for('main.friends'))
+
+
+@main.route("/friends/decline/<int:friendship_id>", methods=['POST'])
+@login_required
+def decline_friend_request(friendship_id):
+    fs = Friendship.query.get_or_404(friendship_id)
+    if fs.receiver_id != current_user.id:
+        flash("Вы не можете отклонить эту заявку", "danger")
+        return redirect(url_for('main.friends'))
+
+    db.session.delete(fs)
+    db.session.commit()
+    flash("Заявка отклонена", "info")
+    return redirect(url_for('main.friends'))
+
+
+@main.route("/friends/remove/<int:user_id>", methods=['POST'])
+@login_required
+def remove_friend(user_id):
+    fs = Friendship.query.filter(
+        ((Friendship.requester_id == current_user.id) & (Friendship.receiver_id == user_id)) |
+        ((Friendship.receiver_id == current_user.id) & (Friendship.requester_id == user_id)),
+        Friendship.status == 'accepted'
+    ).first()
+    if fs:
+        db.session.delete(fs)
+        db.session.commit()
+        flash("Пользователь удалён из друзей", "info")
+    else:
+        flash("Вы не в друзьях", "warning")
+    return redirect(url_for('main.friends'))
+
+
+@main.route("/friends")
+@login_required
+def friends():
+    # Принятые
+    friends = Friendship.query.filter(
+        ((Friendship.requester_id == current_user.id) | (Friendship.receiver_id == current_user.id)) &
+        (Friendship.status == 'accepted')
+    ).all()
+
+    # Полученные заявки
+    incoming = Friendship.query.filter_by(receiver_id=current_user.id, status='pending').all()
+
+    # Отправленные заявки
+    outgoing = Friendship.query.filter_by(requester_id=current_user.id, status='pending').all()
+
+    return render_template('friends.html', friends=friends, incoming=incoming, outgoing=outgoing)
+
+
+@main.route('/api/friends/status')
+@login_required
+def friends_status():
+    friends = User.get_friends_for_user(current_user.id)
+    response = []
+    for friend in friends:
+        status = '🟢 Онлайн' if User.is_online(friend) else '🔴 Оффлайн'
+        response.append({'username': friend.username, 'status': status})
+    return jsonify(response)
+
+@main.before_request
+def update_last_seen():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()

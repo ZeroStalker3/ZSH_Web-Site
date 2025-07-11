@@ -4,43 +4,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Дорожная карта — ZSH</title>
+
+  <!-- Подключаем CSS для тем оформления -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/themes/' + theme + '.css') }}">
+
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
-    body {
+  html, body {
       margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: 'Orbitron', sans-serif;
-      background: #0a0a0a;
-      color: white;
+      overflow-x: hidden;
+      background: var(--bg, #000); /* fallback — чёрный */
+      color: var(--text, #fff);     /* fallback — белый */
     }
 
+    /* Фиксированный хедер */
     header {
-      position: fixed;
+      box-sizing: border-box;
+      top: 0; left: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--header-bg, rgba(0, 0, 0, 0.85));
       padding: 1rem 2rem;
       z-index: 100;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      top: 0;
+      transition: transform 1.5s ease, rotate 1.5s ease;
+      transform-origin: top center;
+      box-shadow: 0 0 10px var(--accent-shadow, #7f5af0aa);
     }
+
     nav a {
-      color: white;
+      color: var(--text, white);
       margin: 0 1rem;
       text-decoration: none;
       position: relative;
+      user-select: none;
+      transition: color 0.3s ease;
     }
+
     nav a:hover::after {
       content: '';
       position: absolute;
       width: 100%;
       height: 2px;
-      background: #7f5af0;
+      background: var(--accent, #7f5af0);
       bottom: -4px;
       left: 0;
     }
-
+    nav a:hover {
+      color: var(--accent, #7f5af0);
+    }
     main {
       padding: 8rem 2rem 4rem;
       max-width: 900px;
@@ -83,62 +100,44 @@
   <header>
     <div><strong>ZSH</strong></div>
     <nav>
-      <a href="index.html">Главная</a>
-      <a href="about.html">О нас</a>
-      <a href="games.html">Игры</a>
-      <a href="blog.html">Блог</a>
-      <a href="roadmap.html">Дорожная карта</a>
+      <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
+      <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
+      <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
+      <a href="{{ url_for('main.roadmap') }}" tabindex="4">Карта развития</a>
+      <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.profile') }}">Профиль</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('main.admin') }}">Админ</a>
+        {% endif %}
+        <a href="{{ url_for('main.logout') }}">Выйти</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Войти</a>
+      {% endif %}
     </nav>
   </header>
 
   <main>
     <h1>Дорожная карта проекта</h1>
 
-    <div class="stage">
-      <h2>📦 Бета-версия сайта</h2>
-      <div class="progress"><div class="progress-bar" style="width: 95%;"></div></div>
-    </div>
-
-    <div class="stage">
-      <h2>🧠 AI Playground + визуализация</h2>
-      <div class="progress"><div class="progress-bar" style="width: 80%;"></div></div>
-    </div>
-
-    <div class="stage">
-      <h2>🎮 Игровой портал и WebGL-галерея</h2>
-      <div class="progress"><div class="progress-bar" style="width: 75%;"></div></div>
-    </div>
-
-    <div class="stage">
-      <h2>💬 Интерактивный блог + Easter Eggs</h2>
-      <div class="progress"><div class="progress-bar" style="width: 90%;"></div></div>
-    </div>
-
-    <div class="stage">
-      <h2>⚙️ CMS и модульная архитектура</h2>
-      <div class="progress"><div class="progress-bar" style="width: 60%;"></div></div>
-    </div>
-
-    <div class="stage">
-      <h2>🚀 Релиз первой мини-игры</h2>
-      <div class="progress"><div class="progress-bar" style="width: 45%;"></div></div>
-    </div>
-
-    <div class="stage">
-      <h2>🌌 Лаунчер и PWA-функции</h2>
-      <div class="progress"><div class="progress-bar" style="width: 30%;"></div></div>
-    </div>
-
+    {% for key, data in progress_data.items() %}
+      <div class="stage">
+        <h2>{{ data.label }}</h2>
+        <div class="progress">
+          <div class="progress-bar" data-width="{{ data.progress }}" style="width: 0%;"></div>
+        </div>
+      </div>
+    {% endfor %}
   </main>
 
+
   <script>
-    // Запуск анимации прогресса после загрузки страницы
     window.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.progress-bar').forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0';
+        const targetWidth = bar.dataset.width;
+        bar.style.width = '0%';
         setTimeout(() => {
-          bar.style.width = width;
+          bar.style.width = targetWidth + '%';
         }, 200);
       });
     });

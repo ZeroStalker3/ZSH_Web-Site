@@ -309,7 +309,7 @@
       <a href="{{ url_for('main.index') }}" tabindex="1">Главная</a>
       <a href="{{ url_for('main.about') }}" tabindex="2">О нас</a>
       <a href="{{ url_for('main.blog') }}" tabindex="3">Блог</a> 
-      <a href="{{ url_for('main.themes_customizer') }}" tabindex="4">Темы</a>
+      <a href="{{ url_for('main.roadmap') }}" tabindex="4">Карта развития</a>
       <a href="{{ url_for('main.contact') }}" tabindex="5">Контакты</a>
       {% if current_user.is_authenticated %}
         <a href="{{ url_for('main.profile') }}">Профиль</a>
@@ -335,6 +335,7 @@
         <li data-target="subscriptions" role="button" tabindex="0" aria-selected="false">Подписки</li>
         <li data-target="password" role="button" tabindex="0" aria-selected="false">Смена пароля</li>
         <li data-target="socials" role="button" tabindex="0" aria-selected="false">Соцсети</li>
+        <li data-target="moreoptions" role="button" tabindex="0" aria-selected="false"><a href="{{ url_for('main.settings') }}">Больше настроек</a></li>
       </ul>
     </aside>
 
@@ -362,6 +363,12 @@
             {{ profile_form.avatar(class="form-control-file") }}
           </div>
           <button type="submit" name="save_profile" class="btn">Сохранить изменения</button>
+        </div>
+      </form>
+
+      <form method="POST" action="{{ url_for('main.settings') }}">
+        <div id="moreoptions" class="content-section" tabindex="0">
+          <div class="activity-item">⏳идёт переадресация⏳</div>
         </div>
       </form>
 
