@@ -307,9 +307,19 @@ def builder():
 def themes_customizer():
     return render_template('ThemesCustomizer.html')
 
-@main.route('/search')
-def search():
-    return render_template('search.html')
+@main.route('/search', methods=['GET'])
+@login_required
+def search_users():
+    query = request.args.get('q', '').strip()
+    users = []
+    if query:
+        users = User.query.filter(
+            or_(
+                User.username.ilike(f"%{query}%"),
+                User.email.ilike(f"%{query}%")
+            )
+        ).filter(User.id != current_user.id).all()
+    return render_template('search.html', users=users, query=query)
 
 @main.route('/admin')
 @login_required
@@ -339,6 +349,7 @@ def roadmap():
 @main.route("/friends/request/<int:user_id>", methods=['POST'])
 @login_required
 def send_friend_request(user_id):
+    form = EmptyForm()    
     if user_id == current_user.id:
         flash("Нельзя добавить себя в друзья", "warning")
         return redirect(request.referrer or url_for('main.index'))
@@ -361,6 +372,7 @@ def send_friend_request(user_id):
 @main.route("/friends/accept/<int:friendship_id>", methods=['POST'])
 @login_required
 def accept_friend_request(friendship_id):
+    form = EmptyForm()    
     fs = Friendship.query.get_or_404(friendship_id)
     if fs.receiver_id != current_user.id:
         flash("Вы не можете подтвердить эту заявку", "danger")
@@ -375,6 +387,7 @@ def accept_friend_request(friendship_id):
 @main.route("/friends/decline/<int:friendship_id>", methods=['POST'])
 @login_required
 def decline_friend_request(friendship_id):
+    form = EmptyForm()    
     fs = Friendship.query.get_or_404(friendship_id)
     if fs.receiver_id != current_user.id:
         flash("Вы не можете отклонить эту заявку", "danger")
@@ -400,6 +413,7 @@ def remove_friend(user_id):
         flash("Пользователь удалён из друзей", "info")
     else:
         flash("Вы не в друзьях", "warning")
+    empty_form = EmptyForm()
     return redirect(url_for('main.friends'))
 
 
@@ -427,7 +441,10 @@ def friends_status():
     friends = User.get_friends_for_user(current_user.id)
     response = []
     for friend in friends:
-        status = '🟢 Онлайн' if User.is_online(friend) else '🔴 Оффлайн'
+        if User.is_online(friend):
+            status = '🟢 Онлайн'
+        else:
+            status = f'🔴 Оффлайн, был(а): {friend.last_seen_human()}'
         response.append({'username': friend.username, 'status': status})
     return jsonify(response)
 

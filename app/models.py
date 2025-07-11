@@ -1,6 +1,6 @@
 from app import db, login_manager
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import or_, and_
 
@@ -64,7 +64,20 @@ class User(db.Model, UserMixin):
         if not user.last_seen:
             return False
         return (datetime.utcnow() - user.last_seen).total_seconds() < 300
-
+    
+    def last_seen_human(self):
+        if not self.last_seen:
+            return "Нет данных"
+        now = datetime.utcnow()
+        delta = now - self.last_seen
+        if delta < timedelta(minutes=5):
+            return "В сети"
+        elif self.last_seen.date() == now.date():
+            return "Сегодня"
+        elif self.last_seen.date() == (now - timedelta(days=1)).date():
+            return "Вчера"
+        else:
+            return f"{delta.days} дн. назад"
 
 class SocialLinks(db.Model):
     __tablename__ = 'social_links'
@@ -131,5 +144,7 @@ class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='pending')
-    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+    status = db.Column(db.String(20), default='pending')  # pending | accepted | declined
+
+    requester = db.relationship('User', foreign_keys=[requester_id], backref='sent_requests')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_requests')

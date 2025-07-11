@@ -80,3 +80,7 @@ class SettingsForm(FlaskForm):
     ], validators=[DataRequired()])
 
     submit = SubmitField("Сохранить настройки")
+
+class EmptyForm(FlaskForm):
+    """Пустая форма — только для CSRF."""
+    pass

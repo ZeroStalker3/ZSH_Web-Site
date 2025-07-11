@@ -168,14 +168,21 @@
     <h2> Друзья </h2>
     {% for f in friends %}
     {% set user = f.requester if f.receiver_id == current_user.id else f.receiver %}
-    <div class="friend" data-username="{{ friend.username }}">
+    <div class="friend" data-username="{{ user.username }}">
       <div class="friend-info">
         <span class="friend-name">{{ user.username }}</span>
-        <span class="friend-status">Статус: Друг</span>
+        <span class="friend-status">
+          {% if user.last_seen_human() == "В сети" %}
+            <span style="color: #2ecc40;">В сети</span>
+          {% else %}
+            Был(а): {{ user.last_seen_human() }}
+          {% endif %}
+        </span>
       </div>
       <div class="friend-actions">
         <form method="post" action="{{ url_for('main.remove_friend', user_id=user.id) }}">
-          <button type="submit">Удалить</button>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit">Удалить</button>
         </form>
       </div>
     </div>
@@ -185,16 +192,19 @@
   {% if incoming %}
     <h2>Входящие заявки</h2>
     {% for f in incoming %}
-    <div class="friend" data-username="{{ friend.username }}">
+    <div class="friend" data-username="{{ f.requester.username }}">
       <div class="friend-info">
         <span class="friend-name">{{ f.requester.username }}</span>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <span class="friend-status">Хочет добавить вас</span>
       </div>
       <div class="friend-actions">
         <form method="post" action="{{ url_for('main.accept_friend_request', friendship_id=f.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit">Принять</button>
         </form>
         <form method="post" action="{{ url_for('main.decline_friend_request', friendship_id=f.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit">Отклонить</button>
         </form>
       </div>
@@ -205,13 +215,14 @@
   {% if outgoing %}
     <h2>Отправленные заявки</h2>
     {% for f in outgoing %}
-    <div class="friend" data-username="{{ friend.username }}">
+    <div class="friend" data-username="{{ f.receiver.username }}">
       <div class="friend-info">
         <span class="friend-name">{{ f.receiver.username }}</span>
         <span class="friend-status">Заявка отправлена</span>
       </div>
       <div class="friend-actions">
         <form method="post" action="{{ url_for('main.remove_friend', user_id=f.receiver.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit">Отменить</button>
         </form>
       </div>
