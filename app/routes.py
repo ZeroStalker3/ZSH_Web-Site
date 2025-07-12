@@ -312,14 +312,30 @@ def themes_customizer():
 def search_users():
     query = request.args.get('q', '').strip()
     users = []
+
     if query:
         users = User.query.filter(
             or_(
-                User.username.ilike(f"%{query}%"),
-                User.email.ilike(f"%{query}%")
+                User.username.ilike(f"%{query}%")
             )
         ).filter(User.id != current_user.id).all()
-    return render_template('search.html', users=users, query=query)
+ 
+    # 👉 Только после получения users — выполняем запрос на дружбу
+    user_ids = [u.id for u in users]
+    existing_friendships = Friendship.query.filter(
+        or_(
+            and_(Friendship.requester_id == current_user.id, Friendship.receiver_id.in_(user_ids)),
+            and_(Friendship.receiver_id == current_user.id, Friendship.requester_id.in_(user_ids))
+        )
+    ).all()
+
+    # Словарь статусов
+    friend_status = {}
+    for f in existing_friendships:
+        other_id = f.receiver_id if f.requester_id == current_user.id else f.requester_id
+        friend_status[other_id] = f.status
+
+    return render_template('search.html', users=users, query=query, friend_status=friend_status)
 
 @main.route('/admin')
 @login_required
@@ -345,6 +361,23 @@ def roadmap():
         }
 
     return render_template('roadmap.html', progress_data=progress_data)
+
+@main.route("/friends")
+@login_required
+def friends():
+    # Принятые
+    friends = Friendship.query.filter(
+        ((Friendship.requester_id == current_user.id) | (Friendship.receiver_id == current_user.id)) &
+        (Friendship.status == 'accepted')
+    ).all()
+
+    # Полученные заявки
+    incoming = Friendship.query.filter_by(receiver_id=current_user.id, status='pending').all()
+
+    # Отправленные заявки
+    outgoing = Friendship.query.filter_by(requester_id=current_user.id, status='pending').all()
+
+    return render_template('friends.html', friends=friends, incoming=incoming, outgoing=outgoing)
 
 @main.route("/friends/request/<int:user_id>", methods=['POST'])
 @login_required
@@ -383,21 +416,25 @@ def accept_friend_request(friendship_id):
     flash("Заявка принята", "success")
     return redirect(url_for('main.friends'))
 
-
-@main.route("/friends/decline/<int:friendship_id>", methods=['POST'])
+@main.route("/friends/cancel/<int:friendship_id>", methods=['POST'])
 @login_required
-def decline_friend_request(friendship_id):
-    form = EmptyForm()    
+def cancel_friend_request(friendship_id):
+    form = EmptyForm()
+    print(f"DEBUG: Cancel request for friendship_id={friendship_id}")  # Логирование
+    
     fs = Friendship.query.get_or_404(friendship_id)
-    if fs.receiver_id != current_user.id:
-        flash("Вы не можете отклонить эту заявку", "danger")
+    print(f"DEBUG: Found friendship: {fs.id}, requester={fs.requester_id}, receiver={fs.receiver_id}")
+
+    if fs.requester_id != current_user.id:
+        print("DEBUG: User is not the requester! Access denied.")
+        flash("Вы не можете отменить эту заявку", "danger")
         return redirect(url_for('main.friends'))
 
     db.session.delete(fs)
     db.session.commit()
-    flash("Заявка отклонена", "info")
+    print("DEBUG: Friendship deleted successfully.")
+    flash("Заявка отменена", "info")
     return redirect(url_for('main.friends'))
-
 
 @main.route("/friends/remove/<int:user_id>", methods=['POST'])
 @login_required
@@ -415,25 +452,6 @@ def remove_friend(user_id):
         flash("Вы не в друзьях", "warning")
     empty_form = EmptyForm()
     return redirect(url_for('main.friends'))
-
-
-@main.route("/friends")
-@login_required
-def friends():
-    # Принятые
-    friends = Friendship.query.filter(
-        ((Friendship.requester_id == current_user.id) | (Friendship.receiver_id == current_user.id)) &
-        (Friendship.status == 'accepted')
-    ).all()
-
-    # Полученные заявки
-    incoming = Friendship.query.filter_by(receiver_id=current_user.id, status='pending').all()
-
-    # Отправленные заявки
-    outgoing = Friendship.query.filter_by(requester_id=current_user.id, status='pending').all()
-
-    return render_template('friends.html', friends=friends, incoming=incoming, outgoing=outgoing)
-
 
 @main.route('/api/friends/status')
 @login_required

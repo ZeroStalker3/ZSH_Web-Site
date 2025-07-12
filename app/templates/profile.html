@@ -335,8 +335,10 @@
         <li data-target="subscriptions" role="button" tabindex="0" aria-selected="false">Подписки</li>
         <li data-target="password" role="button" tabindex="0" aria-selected="false">Смена пароля</li>
         <li data-target="socials" role="button" tabindex="0" aria-selected="false">Соцсети</li>
-        <li data-target="moreoptions" role="button" tabindex="0" aria-selected="false"><a href="{{ url_for('main.settings') }}">Больше настроек</a></li>
       </ul>
+      
+      <li data-target="friends" role="button" tabindex="0" aria-selected="false"onclick="window.location.href='{{ url_for('main.friends') }}'"> Список друзей </li>
+      <li data-target="moreoptions" role="button" tabindex="0" aria-selected="false"onclick="window.location.href='{{ url_for('main.settings') }}'"> Больше настроек</li>
     </aside>
 
     <section class="content" role="region" aria-live="polite" aria-label="Содержание личного кабинета">
@@ -365,13 +367,7 @@
           <button type="submit" name="save_profile" class="btn">Сохранить изменения</button>
         </div>
       </form>
-
-      <form method="POST" action="{{ url_for('main.settings') }}">
-        <div id="moreoptions" class="content-section" tabindex="0">
-          <div class="activity-item">⏳идёт переадресация⏳</div>
-        </div>
-      </form>
-
+      
       <!-- Активность -->
       <div id="activity" class="content-section" tabindex="0" aria-hidden="true">
         <h2>История активности</h2>

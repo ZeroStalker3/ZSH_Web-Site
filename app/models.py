@@ -145,6 +145,7 @@ class Friendship(db.Model):
     requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     status = db.Column(db.String(20), default='pending')  # pending | accepted | declined
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     requester = db.relationship('User', foreign_keys=[requester_id], backref='sent_requests')
     receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_requests')

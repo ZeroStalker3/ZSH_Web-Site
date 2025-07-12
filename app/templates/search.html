@@ -331,10 +331,17 @@
         {% for user in users %}
           <li>
             <span>{{ user.username }}</span>
-            <form method="post" action="{{ url_for('main.send_friend_request', user_id=user.id) }}">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" >Добавить в друзья</button>
-            </form>
+              {% set status = friend_status.get(user.id) %}
+              {% if status == 'pending' %}
+                <button disabled>Заявка отправлена</button>
+              {% elif status == 'accepted' %}
+                <button disabled>Уже в друзьях</button>
+              {% else %}
+                <form method="post" action="{{ url_for('main.send_friend_request', user_id=user.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit">Добавить в друзья</button>
+                </form>
+              {% endif %}
           </li>
         {% endfor %}
       </ul>
