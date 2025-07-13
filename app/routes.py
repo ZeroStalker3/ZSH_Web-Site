@@ -109,6 +109,12 @@ def profile():
     profile_form = ProfileForm()
     password_form = PasswordChangeForm()
     social_form = SocialLinksForm(obj=current_user.social_links or SocialLinks())
+    
+    friends_count = Friendship.query.filter(
+        ((Friendship.requester_id == current_user.id) | 
+         (Friendship.receiver_id == current_user.id)) &
+        (Friendship.status == 'accepted')
+    ).cou
 
     if 'save_profile' in request.form and profile_form.validate_on_submit():
         current_user.username = profile_form.username.data
@@ -186,7 +192,8 @@ def profile():
         profile_form=profile_form,
         password_form=password_form,
         social_form=social_form,
-        user=current_user
+        user=current_user,
+        friends_count=friends_count 
     )
 
 @main.route('/register', methods=['GET', 'POST'])
@@ -387,15 +394,30 @@ def send_friend_request(user_id):
         flash("Нельзя добавить себя в друзья", "warning")
         return redirect(request.referrer or url_for('main.index'))
 
+    last_24h = datetime.utcnow() - timedelta(hours=24)
+    recent_requests = Friendship.query.filter(
+        Friendship.requester_id == current_user.id,
+        Friendship.created_at >= last_24h
+    ).count()
+    
+    if recent_requests >= 5:
+        flash("Лимит: 5 заявок в сутки", "danger")
+        return redirect(request.referrer or url_for('main.index'))
+
     existing = Friendship.query.filter_by(
         requester_id=current_user.id,
         receiver_id=user_id
     ).first()
+
     if existing:
         flash("Заявка уже отправлена", "info")
         return redirect(request.referrer or url_for('main.index'))
 
-    new_request = Friendship(requester_id=current_user.id, receiver_id=user_id, status='pending')
+    new_request = Friendship(
+        requester_id=current_user.id, 
+        receiver_id=user_id, 
+        status='pending')
+    
     db.session.add(new_request)
     db.session.commit()
     flash("Заявка отправлена", "success")
